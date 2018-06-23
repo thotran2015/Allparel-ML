@@ -1,3 +1,4 @@
+from comet_ml import Experiment
 from base.base_trainer import BaseTrain
 import os
 from keras.callbacks import ModelCheckpoint, TensorBoard
@@ -33,8 +34,7 @@ class SimpleMnistModelTrainer(BaseTrain):
         )
 
         if hasattr(self.config,"comet_api_key"):
-            from comet_ml import Experiment
-            experiment = Experiment(api_key=self.config.comet_api_key, project_name=self.config.exp_name)
+            experiment = Experiment(api_key=self.config.comet_api_key)
             experiment.disable_mp()
             experiment.log_multiple_params(self.config)
             self.callbacks.append(experiment.get_keras_callback())
