@@ -11,7 +11,7 @@
     "optimizer": "adadelta"
   },
   "trainer":{
-    "name": "simple_mnist_trainer.SimpleMnistModelTrainer",
+    "name": "simple_mnist_trainer.ModelTrainer",
     "num_epochs": 20,
     "batch_size": 64,
     "validation_split":0.25,
