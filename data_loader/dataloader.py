@@ -59,7 +59,7 @@ class DataGenerator(utils.Sequence):
                 X[i, ] = np.zeros((224, 224, 3))
                 y[i, ] = np.array([-1] * self.class_count)
                 continue
-
+            print(os.path.join(self.image_root,imagePath))
             image = cv2.imread(os.path.join(self.image_root,imagePath))
             image = cv2.resize(image, (224, 224))
             image = img_to_array(image)
