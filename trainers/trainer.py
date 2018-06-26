@@ -44,6 +44,8 @@ class ModelTrainer(BaseTrain):
         history = self.model.fit_generator(
             generator = self.train_data_generator,
             validation_data = self.val_data_generator,
+            steps_per_epoch = self.config.trainer.steps_per_epoch,
+            validation_steps = self.config.trainer.validation_steps,
             epochs=self.config.trainer.num_epochs,
             verbose=self.config.trainer.verbose_training,
             use_multiprocessing=True,

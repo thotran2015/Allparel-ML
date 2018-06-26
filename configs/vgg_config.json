@@ -15,6 +15,7 @@
   "trainer":{
     "name": "simple_mnist_trainer.ModelTrainer",
     "steps_per_epoch": 100,
+    "validation_steps": 10,
     "num_epochs": 20,
     "batch_size": 64,
     "validation_split":0.25,
