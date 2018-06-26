@@ -1,21 +1,26 @@
 {
   "exp": {
-    "name": "simple_mnist_from_config"
+    "name": "conv_mnist_from_config"
   },
   "data_loader": {
-    "name": "simple_mnist_data_loader.SimpleMnistDataLoader"
+    "name": "dataloader.Dataloader",
+    "file_index": "datasets/image_labels.txt",
+    "images_path": "datasets/images/"
   },
   "model":{
-    "name": "simple_mnist_model.SimpleMnistModel",
+    "name": "vgg_model.VGGModel",
     "learning_rate": 0.001,
-    "optimizer": "adam"
+    "optimizer": "adadelta"
   },
   "trainer":{
-    "name": "simple_mnist_trainer.SimpleMnistModelTrainer",
+    "name": "simple_mnist_trainer.ModelTrainer",
+    "steps_per_epoch": 100,
     "num_epochs": 20,
     "batch_size": 64,
     "validation_split":0.25,
-    "verbose_training": true
+    "verbose_training": true,
+    "class_count": 1000
+
   },
   "callbacks":{
     "checkpoint_monitor": "val_loss",

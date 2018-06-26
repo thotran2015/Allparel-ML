@@ -4,9 +4,9 @@ import os
 from keras.callbacks import ModelCheckpoint, TensorBoard
 
 
-class SimpleMnistModelTrainer(BaseTrain):
-    def __init__(self, model, data, config):
-        super(SimpleMnistModelTrainer, self).__init__(model, data, config)
+class ModelTrainer(BaseTrain):
+    def __init__(self, model, data_generator, config):
+        super(ModelTrainer, self).__init__(model, data_generator, config)
         self.callbacks = []
         self.loss = []
         self.acc = []
@@ -40,8 +40,9 @@ class SimpleMnistModelTrainer(BaseTrain):
             self.callbacks.append(experiment.get_keras_callback())
 
     def train(self):
-        history = self.model.fit(
-            self.data[0], self.data[1],
+        history = self.model.fit_generator(
+            self.data,
+            steps_per_epoch = self.config.trainer.steps_per_epoch,
             epochs=self.config.trainer.num_epochs,
             verbose=self.config.trainer.verbose_training,
             batch_size=self.config.trainer.batch_size,
