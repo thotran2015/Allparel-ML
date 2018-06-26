@@ -47,7 +47,7 @@ class DataGenerator(utils.Sequence):
         'Generates data containing batch_size samples' # X : (n_samples, *dim, n_channels)
         # Initialization
         X = np.empty((self.batch_size, 224, 224, 3))
-        y = np.empty((self.batch_size), dtype=int)
+        y = np.empty((self.batch_size, self.class_count), dtype=int)
 
         # Generate data
         for i, index in enumerate(indexes):
@@ -67,6 +67,6 @@ class DataGenerator(utils.Sequence):
                     label[i] = 1
                 elif i in negative:
                     label[i] = 0
-            y[i] = np.array(label)
+            y[i,] = np.array(label)
 
         return X, y
