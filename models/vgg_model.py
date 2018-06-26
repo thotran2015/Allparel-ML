@@ -15,10 +15,12 @@ def masked_loss_function(y_true, y_pred):
 class VGGModel(BaseModel):
     def __init__(self, config):
         super(VGGModel, self).__init__(config)
+        self.num_classes = config.trainer.class_count
+        self.batch_size = config.trainer.batch_size
         self.build_model()
     
     def build_model(self):
-        base_model = vgg16.VGG16(include_top=True, weights='imagenet', input_tensor=None, input_shape=None, pooling=None, classes=1000)
+        base_model = vgg16.VGG16(include_top=True, weights='imagenet', input_tensor=None, input_shape=(self.batch_size, 224, 224, 3), pooling=None, classes=self.num_classes)
         base_model.layers[-1].activation=sigmoid
         self.model = base_model
         self.model.compile(

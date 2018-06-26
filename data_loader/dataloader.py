@@ -51,8 +51,8 @@ class DataGenerator(utils.Sequence):
         # Generate data
         for i, index in enumerate(indexes):
             imagePath = index.split(',')[0]
-            positive = [int(x) for x in index.split(',')[1].split(' ')]
-            negative = [int(x) for x in index.split(',')[2].split(' ')]
+            positive = [int(x) for x in index.split(',')[1].split(' ')[1 : ]]
+            negative = [int(x) for x in index.split(',')[2].split(' ')[1 : ]]
 
             image = cv2.imread(self.image_root + imagePath)
             image = cv2.resize(image, (224, 224))
