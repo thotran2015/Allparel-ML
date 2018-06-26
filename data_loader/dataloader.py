@@ -4,6 +4,7 @@ from keras.preprocessing.image import ImageDataGenerator
 import cv2
 import random
 from keras import utils
+import numpy as np
 
 # https://stanford.edu/~shervine/blog/keras-how-to-generate-data-on-the-fly.html
 class DataGenerator(utils.Sequence):
@@ -13,17 +14,18 @@ class DataGenerator(utils.Sequence):
         with open(config.data_loader.file_index) as f:
             file_index = f.read().splitlines()
         random.seed(42)
-        self.on_epoch_end()
+        random.shuffle(file_index)
         print("Loaded %d images", len(file_index))
         validationImages = int(config.trainer.validation_split * len(file_index))
         self.indexes = file_index[validationImages : ] if train else file_index[ : validationImages]
         self.class_count = config.trainer.class_count
         self.image_root = config.dataloader.images_path
         self.batch_size = config.trainer.batch_size
+        self.on_epoch_end()
 
     def __len__(self):
         'Denotes the number of batches per epoch'
-        return int(np.floor(len(self.list_IDs) / self.batch_size))
+        return int(np.floor(len(self.indexes) / self.batch_size))
 
     def __getitem__(self, index):
         'Generate one batch of data'
@@ -37,7 +39,7 @@ class DataGenerator(utils.Sequence):
 
     def on_epoch_end(self):
         'Updates indexes after each epoch'
-        random.shuffle(file_index)
+        random.shuffle(self.indexes)
 
 
     def __data_generation(self, indexes):
