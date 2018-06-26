@@ -1,6 +1,6 @@
 from base.base_data_loader import BaseDataLoader
 from keras.datasets import mnist
-from keras.preprocessing.image import ImageDataGenerator
+from keras.preprocessing.image import ImageDataGenerator, img_to_array
 import cv2
 import random
 from keras import utils
@@ -54,7 +54,7 @@ class DataGenerator(utils.Sequence):
             imagePath = index.split(',')[0]
             positive = [int(x) for x in index.split(',')[1].split(' ')[1 : ]]
             negative = [int(x) for x in index.split(',')[2].split(' ')[1 : ]]
-            print(os.path.join(self.image_root,imagePath))
+
             image = cv2.imread(os.path.join(self.image_root,imagePath))
             image = cv2.resize(image, (224, 224))
             image = img_to_array(image)
