@@ -13,7 +13,7 @@ class DataLoader(BaseDataLoader):
         random.seed(42)
         random.shuffle(file_index)
         print("Loaded %d images", len(file_index))
-        validationImages = config.trainer.validation_split * len(file_index)
+        validationImages = int(config.trainer.validation_split * len(file_index))
         self.val_index = file_index[ : validationImages]
         self.train_index = file_index[validationImages : ]
         self.class_count = config.trainer.class_count
