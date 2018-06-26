@@ -36,7 +36,9 @@ class ModelTrainer(BaseTrain):
         if hasattr(self.config,"comet_api_key"):
             experiment = Experiment(api_key=self.config.comet_api_key)
             experiment.disable_mp()
-            experiment.log_multiple_params(self.config)
+            experiment.log_multiple_params(self.config.data_loader)
+            experiment.log_multiple_params(self.config.model)
+            experiment.log_multiple_params(self.config.trainer)
             self.callbacks.append(experiment.get_keras_callback())
 
     def train(self):
