@@ -5,6 +5,7 @@ import cv2
 import random
 from keras import utils
 import numpy as np
+import os
 
 # https://stanford.edu/~shervine/blog/keras-how-to-generate-data-on-the-fly.html
 class DataGenerator(utils.Sequence):
@@ -19,7 +20,7 @@ class DataGenerator(utils.Sequence):
         validationImages = int(config.trainer.validation_split * len(file_index))
         self.indexes = file_index[validationImages : ] if train else file_index[ : validationImages]
         self.class_count = config.trainer.class_count
-        self.image_root = config.dataloader.images_path
+        self.image_root = str(config.data_loader.images_path)
         self.batch_size = config.trainer.batch_size
         self.on_epoch_end()
 
@@ -53,8 +54,8 @@ class DataGenerator(utils.Sequence):
             imagePath = index.split(',')[0]
             positive = [int(x) for x in index.split(',')[1].split(' ')[1 : ]]
             negative = [int(x) for x in index.split(',')[2].split(' ')[1 : ]]
-
-            image = cv2.imread(self.image_root + imagePath)
+            print(os.path.join(self.image_root,imagePath))
+            image = cv2.imread(os.path.join(self.image_root,imagePath))
             image = cv2.resize(image, (224, 224))
             image = img_to_array(image)
 

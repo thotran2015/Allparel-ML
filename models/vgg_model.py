@@ -20,7 +20,7 @@ class VGGModel(BaseModel):
         self.build_model()
     
     def build_model(self):
-        base_model = vgg16.VGG16(include_top=True, weights='imagenet', input_tensor=None, input_shape=(self.batch_size, 224, 224, 3), pooling=None, classes=self.num_classes)
+        base_model = vgg16.VGG16(include_top=True, weights=None, input_tensor=None, input_shape=None, pooling=None, classes=self.num_classes)
         base_model.layers[-1].activation=sigmoid
         self.model = base_model
         self.model.compile(
