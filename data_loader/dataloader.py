@@ -62,11 +62,11 @@ class DataGenerator(utils.Sequence):
             X[i,] = np.array(image, dtype="float") / 255.0
             
             label = [-1] * self.class_count;
-            for i in range(self.class_count):
-                if i in positive:
-                    label[i] = 1
+            for j in range(self.class_count):
+                if j in positive:
+                    label[j] = 1
                 elif i in negative:
-                    label[i] = 0
+                    label[j] = 0
             y[i,] = np.array(label)
 
         return X, y
