@@ -5,8 +5,8 @@ from keras.callbacks import ModelCheckpoint, TensorBoard
 
 
 class ModelTrainer(BaseTrain):
-    def __init__(self, model, data_generator, config):
-        super(ModelTrainer, self).__init__(model, data_generator, config)
+    def __init__(self, model, train_data_generator, val_data_generator, config):
+        super(ModelTrainer, self).__init__(model, train_data_generator, val_data_generator, config)
         self.callbacks = []
         self.loss = []
         self.acc = []
@@ -41,12 +41,12 @@ class ModelTrainer(BaseTrain):
 
     def train(self):
         history = self.model.fit_generator(
-            self.data,
-            steps_per_epoch = self.config.trainer.steps_per_epoch,
+            generator = self.train_data_generator,
+            validation_data = self.val_data_generator,
             epochs=self.config.trainer.num_epochs,
             verbose=self.config.trainer.verbose_training,
-            batch_size=self.config.trainer.batch_size,
-            validation_split=self.config.trainer.validation_split,
+            use_multiprocessing=True,
+            workers=6,
             callbacks=self.callbacks,
         )
         self.loss.extend(history.history['loss'])

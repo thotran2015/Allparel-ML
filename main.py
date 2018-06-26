@@ -1,5 +1,5 @@
 from comet_ml import Experiment 
-from data_loader.dataloader import DataLoader
+from data_loader.dataloader import DataGenerator
 from models.vgg_model import VGGModel
 from trainers.trainer import ModelTrainer
 from utils.config import process_config
@@ -16,13 +16,14 @@ def main():
     create_dirs([config.callbacks.tensorboard_log_dir, config.callbacks.checkpoint_dir])
 
     print('Create the data generator.')
-    data_loader = DataLoader(config)
+    training_generator = DataGenerator(config, True)
+    validation_generator = DataGenerator(config, False)
 
     print('Create the model.')
     model = VGGModel(config)
 
     print('Create the trainer')
-    trainer = ModelTrainer(model.model, data_loader.get_train_data(), config)
+    trainer = ModelTrainer(model.model, training_generator, validation_generator, config)
 
     print('Start training the model.')
     trainer.train()
