@@ -55,23 +55,28 @@ class DataGenerator(utils.Sequence):
             positive = [int(x) for x in index.split(',')[1].split(' ')[1 : ]]
             negative = [int(x) for x in index.split(',')[2].split(' ')[1 : ]]
 
-            if not os.path.isfile(os.path.join(self.image_root,imagePath)):
+            filename = os.path.join(self.image_root,imagePath)
+            if not os.path.isfile(filename):
                 X[i, ] = np.zeros((224, 224, 3))
                 y[i, ] = np.array([-1] * self.class_count)
                 continue
 
-            image = cv2.imread(os.path.join(self.image_root,imagePath))
-            image = cv2.resize(image, (224, 224))
-            image = img_to_array(image)
+            try:
+                image = cv2.imread(filename)
+                image = cv2.resize(image, (224, 224))
+                image = img_to_array(image)
 
-            X[i,] = np.array(image, dtype="float") / 255.0
-            
-            label = [-1] * self.class_count;
-            for j in range(self.class_count):
-                if j in positive:
-                    label[j] = 1
-                elif i in negative:
-                    label[j] = 0
-            y[i,] = np.array(label)
+                X[i,] = np.array(image, dtype="float") / 255.0
+                
+                label = [-1] * self.class_count;
+                for j in range(self.class_count):
+                    if j in positive:
+                        label[j] = 1
+                    elif i in negative:
+                        label[j] = 0
+                y[i,] = np.array(label)
+            except:
+                X[i, ] = np.zeros((224, 224, 3))
+                y[i, ] = np.array([-1] * self.class_count)
 
         return X, y
