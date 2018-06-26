@@ -59,7 +59,7 @@ class DataGenerator(utils.Sequence):
             image = cv2.resize(image, (224, 224))
             image = img_to_array(image)
 
-            X[i,] = np.array(data, dtype="float") / 255.0
+            X[i,] = np.array(image, dtype="float") / 255.0
             
             label = [-1] * self.class_count;
             for i in range(self.class_count):
