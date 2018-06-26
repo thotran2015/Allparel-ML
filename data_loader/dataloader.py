@@ -19,7 +19,7 @@ class DataLoader(BaseDataLoader):
         self.class_count = config.trainer.class_count
         self.image_root = config.dataloader.images_path
     
-    def multiclass_flow_from_directory(file_index):
+    def multiclass_flow_from_directory(self, file_index):
         def flow():
             random.shuffle(file_index)
 
@@ -46,7 +46,7 @@ class DataLoader(BaseDataLoader):
         return flow
 
     def get_train_data(self):
-        return multiclass_flow_from_directory(self.train_index)
+        return self.multiclass_flow_from_directory(self.train_index)
 
     def get_test_data(self):
-        return multiclass_flow_from_directory(self.val_index)
+        return self.multiclass_flow_from_directory(self.val_index)
