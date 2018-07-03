@@ -6,7 +6,8 @@ import random
 from keras import utils
 import numpy as np
 import os
-
+from PIL import ImageFile
+ImageFile.LOAD_TRUNCATED_IMAGES = True
 def get_data_loader(config, train):
     if train:
         data_gen = ImageDataGenerator(
