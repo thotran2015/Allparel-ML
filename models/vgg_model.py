@@ -7,6 +7,7 @@ from keras.activations import sigmoid
 from keras import backend as K
 from keras.models import Model
 from keras.utils import multi_gpu_model
+import tensorflow as tf
 
 # https://www.dlology.com/blog/how-to-multi-task-learning-with-missing-labels-in-keras/
 def masked_loss_function(y_true, y_pred):
@@ -21,12 +22,12 @@ class VGGModel(BaseModel):
         self.build_model()
     
     def build_model(self):
-        self.model = vgg16.VGG16(include_top=True, weights=None, input_tensor=None, input_shape=None, pooling=None, classes=self.num_classes)
+        with tf.device("/cpu:0"):
+            self.model = vgg16.VGG16(include_top=True, weights=None, input_tensor=None, input_shape=None, pooling=None, classes=self.num_classes)
+        self.model = multi_gpu_model(self.model, gpus=3)
         self.model.compile(
               loss="categorical_crossentropy",
               optimizer=self.config.model.optimizer,
               metrics=['accuracy'])
-        self.model = multi_gpu_model(self.model, gpus=3)
-        
         self.model.summary()
         return self.model
