@@ -20,7 +20,7 @@
     "batch_size": 64,
     "validation_split":0.25,
     "verbose_training": true,
-    "class_count": 69
+    "class_count": 9
 
   },
   "callbacks":{
