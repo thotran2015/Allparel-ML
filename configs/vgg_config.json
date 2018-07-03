@@ -1,6 +1,6 @@
 {
   "exp": {
-    "name": "conv_mnist_from_config"
+    "name": "vgg"
   },
   "data_loader": {
     "name": "dataloader.Dataloader",
@@ -17,7 +17,7 @@
     "steps_per_epoch": 100,
     "validation_steps": 10,
     "num_epochs": 20,
-    "batch_size": 128,
+    "batch_size": 64,
     "validation_split":0.25,
     "verbose_training": true,
     "class_count": 69

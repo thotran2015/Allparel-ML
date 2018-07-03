@@ -21,5 +21,8 @@ class BaseModel(object):
         self.model.load_weights(checkpoint_path)
         print("Model loaded")
 
+    def predict(self, img):
+        return self.model.predict(img)
+
     def build_model(self):
         raise NotImplementedError
