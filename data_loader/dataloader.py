@@ -16,9 +16,9 @@ def get_data_loader(config, train):
             zoom_range = 0.2,
             horizontal_flip = True
         )
-        return data_gen.flow_from_directory(config.data_loader.train_dir, target_size = (224, 224))
+        return data_gen.flow_from_directory(config.data_loader.train_dir, target_size = (224, 224), batch_size=config.trainer.batch_size)
     else:
         data_gen = ImageDataGenerator(
             rescale=1./255
         )
-        return data_gen.flow_from_directory(config.data_loader.val_dir, target_size= (224, 224))
+        return data_gen.flow_from_directory(config.data_loader.val_dir, target_size= (224, 224), batch_size=config.trainer.batch_size)
