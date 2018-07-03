@@ -4,8 +4,8 @@
   },
   "data_loader": {
     "name": "dataloader.Dataloader",
-    "file_index": "datasets/image_labels.txt",
-    "images_path": "datasets/images/"
+    "train_dir": "datasets/train/neck",
+    "val_dir": "datasets/validation/neck"
   },
   "model":{
     "name": "vgg_model.VGGModel",
