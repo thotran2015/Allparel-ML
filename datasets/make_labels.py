@@ -108,6 +108,8 @@ def tag_map(records):
             label_counts[t] = label_counts[t] + 1
     return label_counts
 
+
+# Process array of lines from corpus 
 def process_lines(lines):
     write = []
     count = 0
@@ -116,7 +118,8 @@ def process_lines(lines):
         filename = line.split()[0]
         line.replace(filename, '')
         filename = filename.replace('.txt','.jpg')
-        
+
+        # Determine category for determining labels
         category = ''
         if dress.in_category(line):
             category = dress
@@ -133,9 +136,12 @@ def process_lines(lines):
         #all_tags = all_tags + tags
         pos_tags = positive_tags(tags)
         neg_tags = negative_tags(pos_tags)
-
-        record = Record(filename, pos_tags, neg_tags)
-        records.append(record)
+   
+        # Verify image is valid
+        fullpath = '/home/allparel/Allparel-ML/datasets/images/' + filename
+        if os.path.isfile(fullpath) and os.path.getsize(fullpath) > 100:
+            record = Record(filename, pos_tags, neg_tags)
+            records.append(record)
         count = count + 1
         if count % 10000 == 0:
             print("count", count)
@@ -159,18 +165,6 @@ def write_labels(num_records):
         outfile.write(str(count) + '\n')
         for l in config.labels:
             outfile.write(l + '\n')
-
-def write_tags(p, lines):
-    all_most_common = all_tags = p.map(process_lines_tags, lines)
-    most_common = {}
-    for i in range(len(all_most_common)):
-        for key in all_most_common[i].keys():
-            if key in most_common:
-                most_common[key] = all_most_common[i][key] + most_common[key]
-            else:
-                most_common[key] = all_most_common[i][key]
-    #write_top_tags(most_common)
-    write_all_tags(most_common)
 
 def write_top_labels(label_counts):
     sorted_labels= sorted(label_counts.items(), key=operator.itemgetter(1), reverse=True)
@@ -200,8 +194,8 @@ def count_per_label(records):
         print(config.labels[i], "positive: ", positive[i], "negative: ", negative[i])
 
 def organize_image_data(records):
-    train = 'train'
-    validation = 'validation'
+    train = '/home/allparel/Allparel-ML/datasets/train'
+    validation = '/home/allparel/Allparel-ML/datasets/validation'
     if not os.path.exists(train):
         os.makedirs(train)
     if not os.path.exists(validation):
@@ -225,7 +219,7 @@ def organize_image_data(records):
 
                 if index in record.pos:
                     dst = sub_directory + '/' + img
-                    src = 'images/' + img
+                    src = '/home/allparel/Allparel-ML/datasets/images/' + img
                     os.symlink(src, dst)
             i = i + 1
 
@@ -250,23 +244,23 @@ def clean_records(records):
     records = [record for record in records if len(record.pos) > 0 or len(record.neg) > 0]
     return records
 
-#count = 0
-#num_threads = 24
-#lines = [[] for i in range(num_threads)]
-#with open("corpus.txt", "r") as myfile:
-#    for line in myfile:
-#        lines[count % num_threads].append(line)
-#        count = count + 1
-#print("Done reading lines", count)
-#
-#
-#p = Pool(num_threads)
-#records = p.map(process_lines, lines)
-#records = [y for x in records for y in x]
-#records = clean_records(records)
-#write_image_labels(records)
-#write_labels(len(records))
-#count_per_label(records)
+count = 0
+num_threads = 24
+lines = [[] for i in range(num_threads)]
+with open("corpus.txt", "r") as myfile:
+    for line in myfile:
+        lines[count % num_threads].append(line)
+        count = count + 1
+print("Done reading lines", count)
+
+
+p = Pool(num_threads)
+records = p.map(process_lines, lines)
+records = [y for x in records for y in x]
+records = clean_records(records)
+write_image_labels(records)
+write_labels(len(records))
+count_per_label(records)
 
 records = read_image_labels()
 organize_image_data(records)

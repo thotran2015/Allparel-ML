@@ -7,7 +7,6 @@ from keras import utils
 import numpy as np
 import os
 
-# https://stanford.edu/~shervine/blog/keras-how-to-generate-data-on-the-fly.html
 def get_data_loader(config, train):
     if train:
         data_gen = ImageDataGenerator(
@@ -16,9 +15,9 @@ def get_data_loader(config, train):
             zoom_range = 0.2,
             horizontal_flip = True
         )
-        return data_gen.flow_from_directory(config.data_loader.train_dir)
+        return data_gen.flow_from_directory(config.data_loader.train_dir, target_size = (224, 224))
     else:
         data_gen = ImageDataGenerator(
             rescale=1./255
         )
-        return data_gen.flow_from_directory(config.data_loader.val_dir)
+        return data_gen.flow_from_directory(config.data_loader.val_dir, target_size= (224, 224))
