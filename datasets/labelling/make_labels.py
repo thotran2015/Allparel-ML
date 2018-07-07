@@ -4,7 +4,7 @@ import json
 #from pathlib import Path
 from shutil import copyfile
 import json
-#from bs4 import BeautifulSoup
+from bs4 import BeautifulSoup
 import string
 from enum import Enum
 from multiprocessing import Pool
@@ -12,6 +12,7 @@ import config
 import category
 import util
 
+data_directory = "../images/"
 
 class Record:
     def __init__(self, filename, pos, neg):
@@ -147,8 +148,32 @@ def process_lines(lines):
             print("count", count)
     return records
 
+def process_line(filename, line):
+    # Determine category for determining labels
+    category = ''
+    if dress.in_category(line):
+        category = dress
+    elif shirt.in_category(line):
+        category = shirt
+    elif pant.in_category(line):
+        category = pant
+    elif skirt.in_category(line):
+        category = skirt
+    else:
+        # not included categories,e.g.shoes 
+        #print("faled to categorize", line)
+        return
+    tags = get_tags(category, line)
+    #all_tags = all_tags + tags
+    pos_tags = positive_tags(tags)
+    neg_tags = negative_tags(pos_tags)
+   
+    record = Record(filename, pos_tags, neg_tags)
+    return record
+
+
 def write_image_labels(records):
-    with open("image_labels.txt", "w") as outfile:
+    with open(os.path.join(data_directory,"image_labels.txt"), "w") as outfile:
         for record in records:
             pos_string = ''
             neg_string = ''
@@ -161,8 +186,8 @@ def write_image_labels(records):
 
 def write_labels(num_records):
     print("total num", num_records)
-    with open("labels.txt", "w") as outfile:
-        outfile.write(str(count) + '\n')
+    with open(os.path.join(data_directory,"labels.txt"), "w") as outfile:
+        outfile.write(str(num_records) + '\n')
         for l in config.labels:
             outfile.write(l + '\n')
 
@@ -244,22 +269,54 @@ def clean_records(records):
     records = [record for record in records if len(record.pos) > 0 or len(record.neg) > 0]
     return records
 
-count = 0
+#count = 0
+#num_threads = 24
+#lines = [[] for i in range(num_threads)]
+#with open("corpus.txt", "r") as myfile:
+#    for line in myfile:
+#        lines[count % num_threads].append(line)
+#        count = count + 1
+#print("Done reading lines", count)
+
+def clean_json(filename):
+    with open(os.path.join(data_directory, filename), 'r') as f:
+        json_data = json.load(f)
+    table = str.maketrans(' ', ' ', string.punctuation)
+    # Get color
+    try:
+        color = json_data['colors'][0]['name']
+    except:
+        color = ''
+    data = json_data['description'] + color
+    text = BeautifulSoup(data, "lxml").get_text()
+    text = text.translate(table)
+    text = ''.join(i for i in text if not i.isdigit())
+    text = text.lower()
+    return text
+
+def read_all_jsons():
+    text_data = []
+    for filename in os.listdir(data_directory):
+        if filename.endswith(".txt"):
+            with open(os.path.join(data_directory, filename), 'r') as f:
+                json_data = json.load(f)
+                text_data.append(clean_json(json_data))
+    return text_data
+
+
 num_threads = 24
-lines = [[] for i in range(num_threads)]
-with open("corpus.txt", "r") as myfile:
-    for line in myfile:
-        lines[count % num_threads].append(line)
-        count = count + 1
-print("Done reading lines", count)
-
-
 p = Pool(num_threads)
-records = p.map(process_lines, lines)
-records = [y for x in records for y in x]
+files = [f for f in os.listdir(data_directory) if f.endswith('.txt')]
+lines = p.map(clean_json, [f for f in os.listdir(data_directory) if f.endswith('.txt')])
+print("done processing files")
+records = p.starmap(process_line, [(files[i], lines[i]) for i in range(len(files))])
+#records = [y for x in records for y in x]
+print("done processing lines")
+records = [r for r in records if r is not None]
 records = clean_records(records)
 write_image_labels(records)
 write_labels(len(records))
+print("total written records", len(records))
 count_per_label(records)
 
 records = read_image_labels()
