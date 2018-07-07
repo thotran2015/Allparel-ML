@@ -83,71 +83,6 @@ def negative_tags(tags):
                 neg_tags = neg_tags + [g for g in group if g != tag]
     return list(set(neg_tags))
 
-def create_corpus(filename):
-    table = str.maketrans(' ', ' ', string.punctuation)
-    for filename in os.listdir(directory):
-        if count > 10000:
-            break
-        count = count + 1    
-        if filename.endswith(".txt"):
-            with open(os.path.join(directory, filename), 'r') as f:
-                try:
-                    json_data = json.load(f)
-                except:
-                    continue
-                myfile.write(' '.join(create_tags(json_data))+ '\n')
-
-def tag_map(records):
-    all_labels = []
-    for record in records:
-        all_labels = all_labels + record.pos
-    label_counts = {}
-    for t in all_labels:
-        if t not in label_counts:
-            label_counts[t] = 0
-        else:
-            label_counts[t] = label_counts[t] + 1
-    return label_counts
-
-
-# Process array of lines from corpus 
-def process_lines(lines):
-    write = []
-    count = 0
-    records = []
-    for line in lines:
-        filename = line.split()[0]
-        line.replace(filename, '')
-        filename = filename.replace('.txt','.jpg')
-
-        # Determine category for determining labels
-        category = ''
-        if dress.in_category(line):
-            category = dress
-        elif shirt.in_category(line):
-            category = shirt
-        elif pant.in_category(line):
-            category = pant
-        elif skirt.in_category(line):
-            category = skirt
-        else:
-            #print("faled to categorize", line)
-            continue
-        tags = get_tags(category, line)
-        #all_tags = all_tags + tags
-        pos_tags = positive_tags(tags)
-        neg_tags = negative_tags(pos_tags)
-   
-        # Verify image is valid
-        fullpath = '/home/allparel/Allparel-ML/datasets/images/' + filename
-        if os.path.isfile(fullpath) and os.path.getsize(fullpath) > 100:
-            record = Record(filename, pos_tags, neg_tags)
-            records.append(record)
-        count = count + 1
-        if count % 10000 == 0:
-            print("count", count)
-    return records
-
 def process_line(filename, line):
     # Determine category for determining labels
     category = ''
@@ -269,16 +204,7 @@ def clean_records(records):
     records = [record for record in records if len(record.pos) > 0 or len(record.neg) > 0]
     return records
 
-#count = 0
-#num_threads = 24
-#lines = [[] for i in range(num_threads)]
-#with open("corpus.txt", "r") as myfile:
-#    for line in myfile:
-#        lines[count % num_threads].append(line)
-#        count = count + 1
-#print("Done reading lines", count)
-
-def clean_json(filename):
+def process_file(filename):
     with open(os.path.join(data_directory, filename), 'r') as f:
         json_data = json.load(f)
     table = str.maketrans(' ', ' ', string.punctuation)
@@ -294,20 +220,13 @@ def clean_json(filename):
     text = text.lower()
     return text
 
-def read_all_jsons():
-    text_data = []
-    for filename in os.listdir(data_directory):
-        if filename.endswith(".txt"):
-            with open(os.path.join(data_directory, filename), 'r') as f:
-                json_data = json.load(f)
-                text_data.append(clean_json(json_data))
-    return text_data
+
 
 
 num_threads = 24
 p = Pool(num_threads)
 files = [f for f in os.listdir(data_directory) if f.endswith('.txt')]
-lines = p.map(clean_json, [f for f in os.listdir(data_directory) if f.endswith('.txt')])
+lines = p.map(process_file, files)
 print("done processing files")
 records = p.starmap(process_line, [(files[i], lines[i]) for i in range(len(files))])
 #records = [y for x in records for y in x]
@@ -319,5 +238,5 @@ write_labels(len(records))
 print("total written records", len(records))
 count_per_label(records)
 
-records = read_image_labels()
+#records = read_image_labels()
 organize_image_data(records)
