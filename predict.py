@@ -19,8 +19,8 @@ model.load("/home/allparel/Allparel-ML/experiments/2018-07-03/vgg/checkpoints/vg
 #probabilities = model.predict_generator(generator, 10)
 #print(probabilities)
 
-filename = "sweetheart.jpg"
-
+#filename = "sweetheart.jpg"
+filename = "/home/allparel/Allparel-ML/datasets/validation/neck/sweetheartneck/bariano-off-shoulder-sweetheart-sequin-maxi-dress.jpg"
 
 X = np.empty((1, 224, 224, 3))
 image = cv2.imread(filename)

@@ -10,7 +10,9 @@ If there are any processing errors, run
 `cd datasets; python3 clean_data.py`
 
 # Running Training
+`python3 main.py -c configs/vgg_config.json`
 
 # Evaluation
 
 # Running Predictions
+`python3 predict.py -c configs/vgg_config.json`

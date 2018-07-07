@@ -179,7 +179,7 @@ def organize_image_data(records):
 
                 if index in record.pos:
                     dst = sub_directory + '/' + img
-                    src = '/home/allparel/Allparel-ML/datasets/images/' + img
+                    src = data_directory + img
                     os.symlink(src, dst)
             i = i + 1
 

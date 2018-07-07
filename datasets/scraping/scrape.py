@@ -138,8 +138,7 @@ def scrape_offset(category, sort, offset):
     ua = UserAgent()
     header = {'User-Agent': str(ua.chrome)}
     url = 'https://www.shopstyle.com/api/v2/products?cat=' + category + '&device=desktop&includeLooks=true&includeProducts=true&includeSavedQueryId=true&limit=1000&locales=all&maxNumFilters=1000&numLooks=20&offset=' + str(offset) + '&pid=shopstyle&prevCat=mens-shirts&productScore=' + sort + '&url=%2Fbrowse%2F' + category + '&view=angular'
-    print("SCRAPING OFFSET", url)
-    if offset % 10000 == 0:
+    if offset % 1000 == 0:
         print('SORT: ', sort, 'CATEGORY: ', category, ' OFFSET ', offset)
 
     try:
