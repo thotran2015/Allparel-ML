@@ -64,7 +64,7 @@ with open("corpus.txt", "a") as myfile:
                 try:
                     json_data = json.load(f)
                 except:
-                    continue
+                    print("json load failed", filename)
                 myfile.write(filename + " " + make_desc(json_data) + '\n')
                 if filecount % 10000 == 0:
                     print("filecount", filecount)

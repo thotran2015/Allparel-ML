@@ -22,6 +22,9 @@ def main():
     print('Create the model.')
     model = VGGModel(config)
 
+    # Load from previously trained 
+    #model.load("/home/allparel/Allparel-ML/experiments/2018-07-02/vgg/checkpoints/vgg-20-0.93.hdf5")
+
     print('Create the trainer')
     trainer = ModelTrainer(model.model, training_generator, validation_generator, config)
 

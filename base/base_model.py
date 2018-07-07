@@ -24,5 +24,8 @@ class BaseModel(object):
     def predict(self, img):
         return self.model.predict(img)
 
+    def predict_generator(self, generator, num):
+        return self.model.predict_generator(generator, num)
+
     def build_model(self):
         raise NotImplementedError
