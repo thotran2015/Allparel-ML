@@ -1,4 +1,5 @@
 import os
+import sys
 import operator
 import json
 #from pathlib import Path
@@ -12,7 +13,8 @@ import config
 import category
 import util
 
-data_directory = "../images/"
+data_directory = "/home/allparel/Allparel-ML/datasets/images/"
+label_directory = "/home/allparel/Allparel-ML/datasets/"
 
 class Record:
     def __init__(self, filename, pos, neg):
@@ -108,7 +110,7 @@ def process_line(filename, line):
 
 
 def write_image_labels(records):
-    with open(os.path.join(data_directory,"image_labels.txt"), "w") as outfile:
+    with open(os.path.join(label_directory,"image_labels.txt"), "w") as outfile:
         for record in records:
             pos_string = ''
             neg_string = ''
@@ -121,7 +123,7 @@ def write_image_labels(records):
 
 def write_labels(num_records):
     print("total num", num_records)
-    with open(os.path.join(data_directory,"labels.txt"), "w") as outfile:
+    with open(os.path.join(label_directory,"labels.txt"), "w") as outfile:
         outfile.write(str(num_records) + '\n')
         for l in config.labels:
             outfile.write(l + '\n')
@@ -154,8 +156,8 @@ def count_per_label(records):
         print(config.labels[i], "positive: ", positive[i], "negative: ", negative[i])
 
 def organize_image_data(records):
-    train = '/home/allparel/Allparel-ML/datasets/train'
-    validation = '/home/allparel/Allparel-ML/datasets/validation'
+    train = '/home/allparel/Allparel-ML/datasets/train/'
+    validation = '/home/allparel/Allparel-ML/datasets/validation/'
     if not os.path.exists(train):
         os.makedirs(train)
     if not os.path.exists(validation):
@@ -165,19 +167,19 @@ def organize_image_data(records):
     n = 10
     for record in records:
         for name in config.group_names: #BUG HERE
-            directory = train + '/' + name
+            directory = train + name
             if i % n == 0:
                 directory = validation + '/' + name
             if not os.path.exists(directory):
                 os.makedirs(directory)
 
+
             for index in range(len(config.labels)):
-                img = record.filename
+                img = record.filename.replace('.txt', '.jpg')
                 sub_directory = directory + '/' + config.labels[index]
                 if not os.path.exists(sub_directory):
                     os.makedirs(sub_directory)
-
-                if index in record.pos:
+                if config.labels[index] in record.pos:
                     dst = sub_directory + '/' + img
                     src = data_directory + img
                     os.symlink(src, dst)
@@ -236,7 +238,8 @@ records = clean_records(records)
 write_image_labels(records)
 write_labels(len(records))
 print("total written records", len(records))
+organize_image_data(records)
+print("done organizing data")
 count_per_label(records)
 
 #records = read_image_labels()
-organize_image_data(records)

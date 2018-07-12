@@ -6,7 +6,7 @@ skirt_sub_categories = []
 categories = ['shirt', 'dress', 'pant', 'skirt']
 sub_categories = shirt_sub_categories + dress_sub_categories + pant_sub_categories + skirt_sub_categories
 neck = ['vneck', 'crewneck', 'scoopneck', 'sweetheartneck', 'turtleneck', 'highneck', 'roundneck', 'offtheshoulder', 'collar']
-#sleeve = ['sleeveless', 'longsleeve', 'shortsleeve', 'bellsleeve', 'raglansleeve', 'threequartersleeve', 'fluttersleeve', 'insleeve', 'nosleeve']
+#sleeve = ['longsleeve', 'shortsleeve', 'bellsleeve', 'raglansleeve', 'threequartersleeve', 'fluttersleeve', 'insleeve', 'nosleeve']
 #color = ['black', 'white', 'blue', 'red', 'multicolor', 'grey', 'navy', 'red', 'pink', 'dark']
 #pattern = ['logo', 'floral', 'graphic', 'pattern', 'printed', 'tonal', 'embroidered', 'ruffled', 'stripe']
 #fit = ['slim', 'relaxed']
@@ -23,7 +23,7 @@ all_replacements = {
     "sleeved":"sleeve", 
     "sleeves":"sleeve", 
     "cuff":"cuffs", 
-    "sleeveless": "no sleeve", 
+    "nosleeve": "sleeveless",
     "pants": "pant",
 }
 dress_replacements = {

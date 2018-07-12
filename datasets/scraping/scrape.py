@@ -10,7 +10,22 @@ import time
 import numpy as np
 
 data_directory = "../images/"
-
+labels = [
+   #"vneck", 
+   #"v neck",
+   #"crewneck", 
+   #"scoopneck", 
+   "sweetheart neck",
+   "sweetheart", 
+   #"turtleneck", 
+   #"highneck", 
+   #"high neck", 
+   #"roundneck",
+   #"round neck", 
+   #"offtheshoulder",
+   #"off the shoulder",
+   #"collar"
+]
 
 error = "errorCode"
 categories = [
@@ -134,10 +149,15 @@ def download_image(image, filename):
     except Exception as e:
         print("download_image exception: ", image, str(e))
 
-def scrape_offset(category, sort, offset):
+def scrape_offset(category, sort, is_search, label, offset):
     ua = UserAgent()
     header = {'User-Agent': str(ua.chrome)}
-    url = 'https://www.shopstyle.com/api/v2/products?cat=' + category + '&device=desktop&includeLooks=true&includeProducts=true&includeSavedQueryId=true&limit=1000&locales=all&maxNumFilters=1000&numLooks=20&offset=' + str(offset) + '&pid=shopstyle&prevCat=mens-shirts&productScore=' + sort + '&url=%2Fbrowse%2F' + category + '&view=angular'
+    if is_search:
+        print(category, sort, offset, is_search, label)
+        url = "https://www.shopstyle.com/api/v2/site/search?abbreviatedCategoryHistogram=true&cat=" + category + "&device=desktop&filters=Size%2CColor%2CCategory%2CTopRetailer%2CTopBrand%2CHeelHeight&fts=" + label + "&includeLooks=true&includeProducts=true&includeSavedQueryId=true&limit=40&locales=all&maxNumFilters=1000&maxQuickFilters=30&numLooks=20&offset=" + str(offset) + "&numSponsoredProducts=10&pid=shopstyle&prevCat=cocktail-dresses&productScore=" + sort + "&quickFilterTypes=brand&quickFilterTypes=color&quickFilterTypes=fts&url=%2Fbrowse%2Fdresses&useElasticsearch=true&view=angular2"
+    else:
+        url = 'https://www.shopstyle.com/api/v2/products?cat=' + category + '&device=desktop&includeLooks=true&includeProducts=true&includeSavedQueryId=true&limit=1000&locales=all&maxNumFilters=1000&numLooks=20&offset=' + str(offset) + '&pid=shopstyle&prevCat=mens-shirts&productScore=' + sort + '&url=%2Fbrowse%2F' + category + '&view=angular'
+
     if offset % 1000 == 0:
         print('SORT: ', sort, 'CATEGORY: ', category, ' OFFSET ', offset)
 
@@ -151,8 +171,14 @@ def scrape_offset(category, sort, offset):
 
     if error in json_data and json_data["errorCode"] == 400:
         print('Error')
-    if (len(json_data["products"]) < 50):
-        print (len(json_data["products"]))
+    #if (len(json_data["products"]) < 50):
+    #    print ("short list", len(json_data["products"]))
+    #    print(url)
+    if 'products' not in json_data:
+        print(url)
+        print(json_data)
+        sys.exit()
+
     for p in json_data["products"]:
         # check if valid json:
         #try:
@@ -177,10 +203,20 @@ def scrape_offset(category, sort, offset):
 
         # download image
         try: 
-            image = p["image"]["sizes"]["Best"]["url"]
-            download_image(image, filename)
+            if sort in sorts:
+                image = p["image"]["sizes"]["Best"]["url"]
+            else:
+                u = "https://img.shopstyle-cdn.com/sim/"
+                image = p["image"]["id"]
+                first = image[0:2]
+                second = image[2:4]
+                u = u + first + "/" + second + "/" + image + "_best/"
+                print(u)
+                download_image(u, filename)
         except Exception as e:
-            print("Image download exception", category, offset, str(e), image)
+            print("Image download exception", category, offset, str(e))
+            print(p)
+            print(url)
             continue
 
         #if (''.join(p["image"]["sizes"]["Best"]["url"].split('/')[:3]) != 'https:img.shopstyle-cdn.com'):
@@ -201,6 +237,24 @@ def scrape_offset(category, sort, offset):
     #    print(url)
     #    return 
 
+def scrape_label(p, category, sort, label):
+    url = "https://www.shopstyle.com/api/v2/site/search?abbreviatedCategoryHistogram=true&cat=dresses&device=desktop&filters=Size%2CColor%2CCategory%2CTopRetailer%2CTopBrand%2CHeelHeight&fts=" + label + "&includeLooks=true&includeProducts=true&includeSavedQueryId=true&limit=40&locales=all&maxNumFilters=1000&maxQuickFilters=30&numLooks=20&offset=" + str(0) + "&numSponsoredProducts=10&pid=shopstyle&prevCat=cocktail-dresses&productScore=LessPopularityEPC&quickFilterTypes=brand&quickFilterTypes=color&quickFilterTypes=fts&url=%2Fbrowse%2Fdresses&useElasticsearch=true&view=angular2"
+
+    response = requests.get(url)
+
+
+    json_data = json.loads(response.text)
+    try:
+        total = json_data['metadata']['total']
+    except Exception as e:
+        print(response.text)
+
+    total = 5000
+    #print("Category: ", category, " Total:", total)
+    func = partial(scrape_offset, category, sort, True, label)
+    p.map(func, range(0, total, 50))
+
+
 
 def scrape_category(p, category, sort):
     #get total
@@ -218,7 +272,7 @@ def scrape_category(p, category, sort):
 
     total = 5000
     #print("Category: ", category, " Total:", total)
-    func = partial(scrape_offset, category, sort)
+    func = partial(scrape_offset, category, sort, False, "")
     p.map(func, range(0, total, 50))
 
 
@@ -226,8 +280,10 @@ if __name__ == '__main__':
     start = time.time()
     p = Pool(24)
     for sort in sorts:
-        for category in categories:
-            scrape_category(p, category, sort)
+        for label in labels:
+            for category in categories:
+                #     scrape_category(p, category, sort)
+                scrape_label(p, category, sort, label)
 
     p.terminate()
     p.join()

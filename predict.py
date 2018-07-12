@@ -7,6 +7,7 @@ from keras.models import load_model
 import cv2
 from keras.preprocessing.image import ImageDataGenerator, img_to_array
 import numpy as np
+from sklearn import metrics
 
 args = get_args()
 config = process_config(args.config)
@@ -14,9 +15,13 @@ config = process_config(args.config)
 model = VGGModel(config)
 model.load("/home/allparel/Allparel-ML/experiments/2018-07-03/vgg/checkpoints/vgg-26-0.82.hdf5")
 
-#generator = get_data_loader(config, False)
+generator = get_data_loader(config, False)
 
-#probabilities = model.predict_generator(generator, 10)
+probabilities = model.predict_generator(generator, config.trainer.steps_per_epoch)
+val_preds = np.argmax(probabilities, axis=-1)
+val_trues = generator.classes
+cm = metrics.confusion_matrix(val_trues, val_preds)
+print(cm)
 #print(probabilities)
 
 #filename = "sweetheart.jpg"
