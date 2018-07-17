@@ -1,16 +1,23 @@
 from comet_ml import Experiment 
-from data_loader.dataloader import get_predict_data_loader
+import data_loader.dataloader
 from models.vgg_model import VGGModel
 from trainers.trainer import ModelTrainer
 from utils.config import process_config
 from utils.dirs import create_dirs
 from utils.utils import get_args
+from pymongo import MongoClient
+import numpy as np
 
 def main():
     # capture the config path from the run arguments
     # then process the json configuration file
     args = get_args()
     config = process_config(args.config)
+
+    generator = get_data_loader(config, False)
+    labels = [""] * len(generator.class_indices)
+    for label, index in generator.class_indices.items():
+        labels[index] = label
 
     print('Create the data generator.')
     predict_generator = get_predict_data_loader(config)
@@ -28,10 +35,29 @@ def main():
         workers=6,
     )
 
+    client = MongoClient('localhost', 27017)
+    db = client.allparel
+    collection = db.clothes
     for index, prediction in enumerate(predictions):
+        filename = predict_generator.filenames[index]
+        db_record = collection.find_one({'image_file': filename})
+        predicted_tags = db_record.get("predicted_tags", {})
+        predicted_confidences = db_record.get("predicted_confidences", {})
+        
+        cls, conf = np.argmax(prediction, axis=-1)
+        predicted_tags[config.predictor.tag_name] = labels[cls]
+        predicted_confidences[config.predictor.tag_name] = conf
         print("filename: ", 
-            predict_generator.filenames[index],
-            "prediction: ", prediction)
+          predict_generator.filenames[index],
+           "prediction: ", prediction,
+           "class: ", labels[cls],
+           "confidence: ", conf
+           )
+        # r = ['predicted']
+        # collection.update(
+        #     {'image_file':record.image_filename}, 
+        #     {'$set':r}, 
+        #     upsert=True)
 
 if __name__ == '__main__':
     main()

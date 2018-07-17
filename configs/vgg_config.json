@@ -24,8 +24,9 @@
     "class_count": 11
   },
   "predictor":{
-    "steps": 10,
-    "batch_size": 192
+    "steps": 1,
+    "batch_size": 192,
+    "tag_name": "neckline"
   },
   "callbacks":{
     "checkpoint_monitor": "val_loss",
