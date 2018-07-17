@@ -17,7 +17,8 @@ def main():
 
     print('Create the model.')
     model = VGGModel(config)
-
+    model.load("/home/allparel/Allparel-ML/experiments/2018-07-13/vgg/checkpoints/vgg-56-0.76.hdf5")
+    
     # Load from previously trained 
     print('Start Prediction')
     predictions = model.model.predict_generator(
