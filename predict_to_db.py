@@ -54,7 +54,8 @@ def main():
         # predicted_tags = db_record.get("predicted_tags", {})
         # predicted_confidences = db_record.get("predicted_confidences", {})
         
-        cls, conf = np.argmax(prediction, axis=-1)
+        cls = np.argmax(prediction, axis=-1)
+        conf = prediction[cls]
         # predicted_tags[config.predictor.tag_name] = labels[cls]
         # predicted_confidences[config.predictor.tag_name] = conf
         print("filename: ", 
