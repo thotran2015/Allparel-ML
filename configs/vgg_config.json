@@ -26,6 +26,7 @@
   },
   "predictor":{
     "steps": 1,
+    "process_all": false,
     "batch_size": 192,
     "tag_name": "neckline"
   },
