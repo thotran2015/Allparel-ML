@@ -5,7 +5,8 @@
   "data_loader": {
     "name": "dataloader.Dataloader",
     "train_dir": "datasets/train/neck",
-    "val_dir": "datasets/validation/neck"
+    "val_dir": "datasets/validation/neck",
+    "predict_dir": "datasets/train/neck"
   },
   "model":{
     "name": "vgg_model.VGGModel",
@@ -26,7 +27,6 @@
   "predictor":{
     "steps": 10,
     "batch_size": 192,
-    "predict_dir": "datasets/train/neck"
   },
   "callbacks":{
     "checkpoint_monitor": "val_loss",
