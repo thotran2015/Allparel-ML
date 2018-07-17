@@ -7,6 +7,7 @@ from utils.dirs import create_dirs
 from utils.utils import get_args
 from pymongo import MongoClient
 import numpy as np
+import os
 
 def main():
     # capture the config path from the run arguments
@@ -39,8 +40,10 @@ def main():
     db = client.allparel
     collection = db.clothes
     for index, prediction in enumerate(predictions):
-        filename = predict_generator.filenames[index]
-        db_record = collection.find_one({'image_file': filename})
+        filename = os.path.basename(predict_generator.filenames[index])
+        filepath = os.path.join(config.data_loader.full_image_dir, filename)
+    
+        db_record = collection.find_one({'image_file': filepath})
         predicted_tags = db_record.get("predicted_tags", {})
         predicted_confidences = db_record.get("predicted_confidences", {})
         
@@ -48,16 +51,16 @@ def main():
         predicted_tags[config.predictor.tag_name] = labels[cls]
         predicted_confidences[config.predictor.tag_name] = conf
         print("filename: ", 
-          predict_generator.filenames[index],
-           "prediction: ", prediction,
-           "class: ", labels[cls],
-           "confidence: ", conf
-           )
-        # r = ['predicted']
-        # collection.update(
-        #     {'image_file':record.image_filename}, 
-        #     {'$set':r}, 
-        #     upsert=True)
+            filename,
+            "prediction: ", prediction,
+            "class: ", labels[cls],
+            "confidence: ", conf
+        )
+        update_dict = {'predicted_tags': predicted_tags, 'predicted_confidences': predicted_confidences}
+        collection.update(
+            {'image_file':filepath}, 
+            {'$set':update_dict}, 
+            upsert=True)
 
 if __name__ == '__main__':
     main()

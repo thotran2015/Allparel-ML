@@ -6,7 +6,8 @@
     "name": "dataloader.Dataloader",
     "train_dir": "datasets/train/neck",
     "val_dir": "datasets/validation/neck",
-    "predict_dir": "datasets/train/neck"
+    "predict_dir": "datasets/train/neck",
+    "full_image_dir": "/home/allparel/Allparel-ML/datasets/images/"
   },
   "model":{
     "name": "vgg_model.VGGModel",
