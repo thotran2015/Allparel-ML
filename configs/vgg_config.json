@@ -22,11 +22,10 @@
     "validation_split":0.1,
     "verbose_training": true,
     "class_count": 11
-
   },
   "predictor":{
     "steps": 10,
-    "batch_size": 192,
+    "batch_size": 192
   },
   "callbacks":{
     "checkpoint_monitor": "val_loss",
