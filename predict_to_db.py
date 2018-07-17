@@ -57,10 +57,10 @@ def main():
             "confidence: ", conf
         )
         update_dict = {'predicted_tags': predicted_tags, 'predicted_confidences': predicted_confidences}
-        collection.update(
-            {'image_file':filepath}, 
-            {'$set':update_dict}, 
-            upsert=True)
+        # collection.update(
+        #     {'image_file':filepath}, 
+        #     {'$set':update_dict}, 
+        #     upsert=True)
 
 if __name__ == '__main__':
     main()
