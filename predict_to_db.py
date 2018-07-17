@@ -1,5 +1,5 @@
 from comet_ml import Experiment 
-import data_loader.dataloader
+from data_loader.dataloader import *
 from models.vgg_model import VGGModel
 from trainers.trainer import ModelTrainer
 from utils.config import process_config
