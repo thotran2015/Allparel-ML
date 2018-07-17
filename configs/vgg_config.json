@@ -23,6 +23,11 @@
     "class_count": 11
 
   },
+  "predictor":{
+    "steps": 10,
+    "batch_size": 192,
+    "predict_dir": "datasets/train/neck"
+  },
   "callbacks":{
     "checkpoint_monitor": "val_loss",
     "checkpoint_mode": "min",

@@ -16,9 +16,25 @@ def get_data_loader(config, train):
             zoom_range = 0.2,
             horizontal_flip = True
         )
-        return data_gen.flow_from_directory(config.data_loader.train_dir, target_size = (224, 224), batch_size=config.trainer.batch_size)
+        return data_gen.flow_from_directory(config.data_loader.train_dir, 
+            target_size = (224, 224), 
+            batch_size=config.trainer.batch_size)
     else:
         data_gen = ImageDataGenerator(
             rescale=1./255
         )
-        return data_gen.flow_from_directory(config.data_loader.val_dir, target_size= (224, 224), batch_size=config.trainer.batch_size, shuffle=True, seed=123)
+        return data_gen.flow_from_directory(config.data_loader.val_dir, 
+            target_size= (224, 224), 
+            batch_size=config.trainer.batch_size, 
+            shuffle=True, 
+            seed=123)
+
+def get_predict_data_loader(config):
+    data_gen = ImageDataGenerator(
+        rescale=1./255
+    )
+    return data_gen.flow_from_directory(config.data_loader.predict_dir, 
+        target_size= (224, 224), 
+        batch_size=config.predictor.batch_size, 
+        shuffle=False,
+        class_mode=None) 
