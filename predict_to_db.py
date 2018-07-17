@@ -41,8 +41,8 @@ def main():
     collection = db.clothes
     for index, prediction in enumerate(predictions):
         filename = os.path.basename(predict_generator.filenames[index])
-        filepath = os.path.join(config.data_loader.full_image_dir, filename)
-    
+        filepath = config.data_loader.full_image_dir + filename
+        print(filepath)
         db_record = collection.find_one({'image_file': filepath})
         predicted_tags = db_record.get("predicted_tags", {})
         predicted_confidences = db_record.get("predicted_confidences", {})
