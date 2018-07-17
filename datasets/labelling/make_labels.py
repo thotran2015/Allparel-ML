@@ -1,3 +1,5 @@
+from pymongo import MongoClient
+from multiprocessing import Pool
 import os
 import sys
 import operator
@@ -8,48 +10,57 @@ import json
 from bs4 import BeautifulSoup
 import string
 from enum import Enum
-from multiprocessing import Pool
 import config
 import category
 import util
 
+
 data_directory = "/home/allparel/Allparel-ML/datasets/images/"
 label_directory = "/home/allparel/Allparel-ML/datasets/"
 
+train = '/home/allparel/Allparel-ML/datasets/train/'
+validation = '/home/allparel/Allparel-ML/datasets/validation/'
+ 
 class Record:
-    def __init__(self, filename, pos, neg):
-        self.filename = filename
+    def __init__(self, image_filename, description, category=None, pos=None, neg=None):
+        self.image_filename = image_filename
+        self.description = description
+        self.category =  category
         self.pos = pos
         self.neg = neg
+        if self.category is None:
+            self.category = get_category(description)
+        if self.category is not None:
+            if self.pos is None:
+                self.pos = positive_tags(self.category, self.description)
+            if self.neg is None:
+                self.neg = negative_tags(self.pos)
 
     def __hash__(self):
-        return hash(self.filename)
+        return hash(self.image_filename)
 
     def __eq__(self, other):
-        return self.filename == other.filename
+        return self.image_filename == other.image_filename
 
-all_tags = []
 
-dress_sub_categories = config.dress_sub_categories
-shirt_sub_categories = config.shirt_sub_categories
-pant_sub_categories = config.pant_sub_categories
-skirt_sub_categories = config.skirt_sub_categories
-dress_replacements = config.dress_replacements
-shirt_replacements = config.shirt_replacements
-pant_replacements = config.pant_replacements
-skirt_replacements = config.skirt_replacements
+# Configuration
+dress = category.Category('dress', config.dress_sub_categories, config.dress_replacements)
+shirt = category.Category('shirt', config.shirt_sub_categories, config.shirt_replacements)
+pant = category.Category('pant',   config.pant_sub_categories,  config.pant_replacements)
+skirt = category.Category('skirt', config.skirt_sub_categories, config.skirt_replacements)
+categories = [dress, shirt, pant, skirt]
+groups = [config.neck]
+group_names = ['neck']
+labels = config.neck
 
-dress = category.Category('dress', dress_sub_categories, dress_replacements)
-shirt = category.Category('shirt', shirt_sub_categories, shirt_replacements)
-pant = category.Category('pant',   pant_sub_categories,  pant_replacements)
-skirt = category.Category('skirt', skirt_sub_categories, skirt_replacements)
-
+# Multiprocessing
+num_threads = 24
+p = Pool(num_threads)
 
 #Current Approach:
 #   * consider all 1-3 grams 
 #   * lump together anything with 1/3 character diff
 #   * count top frequencies
-
 def n_gram(text, n):
     words = text.split();
     n_words = []
@@ -70,44 +81,38 @@ def get_tags(category, text):
     category.replace(tags)
     return list(set(tags))
 
-def positive_tags(tags):
+def positive_tags(category, line):
+    tags = get_tags(category, line)
     matched_tags = []
     for t in tags:
-        if t in config.labels:
+        if t in labels:
             matched_tags.append(t)
     return list(set(matched_tags))
 
 def negative_tags(tags):
     neg_tags = []
     for tag in tags:
-        for group in config.groups:
+        for group in groups:
             if tag in group:
                 neg_tags = neg_tags + [g for g in group if g != tag]
     return list(set(neg_tags))
 
+def get_category(line):
+    for cat in categories:
+        if cat.in_category(line):
+            return cat
+    return None
+    
 def process_line(filename, line):
     # Determine category for determining labels
-    category = ''
-    if dress.in_category(line):
-        category = dress
-    elif shirt.in_category(line):
-        category = shirt
-    elif pant.in_category(line):
-        category = pant
-    elif skirt.in_category(line):
-        category = skirt
-    else:
-        # not included categories,e.g.shoes 
-        #print("faled to categorize", line)
+    category = get_category(line)
+    if category is None:
         return
-    tags = get_tags(category, line)
-    #all_tags = all_tags + tags
-    pos_tags = positive_tags(tags)
+    pos_tags = positive_tags(category, line)
     neg_tags = negative_tags(pos_tags)
    
-    record = Record(filename, pos_tags, neg_tags)
+    record = Record(filename, line, category, pos_tags, neg_tags)
     return record
-
 
 def write_image_labels(records):
     with open(os.path.join(label_directory,"image_labels.txt"), "w") as outfile:
@@ -115,9 +120,9 @@ def write_image_labels(records):
             pos_string = ''
             neg_string = ''
             for p in record.pos:
-                pos_string = pos_string + ' ' + str(config.labels.index(p))
+                pos_string = pos_string + ' ' + str(labels.index(p))
             for n in record.neg:
-                neg_string = neg_string + ' ' + str(config.labels.index(n))
+                neg_string = neg_string + ' ' + str(labels.index(n))
             line = record.filename + ',' + pos_string + ',' + neg_string + '\n'
             outfile.write(line)
 
@@ -125,39 +130,39 @@ def write_labels(num_records):
     print("total num", num_records)
     with open(os.path.join(label_directory,"labels.txt"), "w") as outfile:
         outfile.write(str(num_records) + '\n')
-        for l in config.labels:
+        for l in labels:
             outfile.write(l + '\n')
 
-def write_top_labels(label_counts):
-    sorted_labels= sorted(label_counts.items(), key=operator.itemgetter(1), reverse=True)
-    i = 0
-    with open("top_tags.txt", "w") as labelfile:
-        while i < 5000 and i < len(sorted_labels):
-            labelfile.write(str(sorted_labels[i][0]) + ' ' + str(sorted_labels[i][1]) + '\n')
-            i = i + 1
-
-def write_all_tags(label_counts):
-    with open("tags.txt", "w") as labelfile:
-        for key in label_counts.keys():
-            labelfile.write(str(key) + ' ' + str(label_counts[key]) + '\n')
-
-
 def count_per_label(records):
-    positive = [0] * len(config.labels)
-    negative = [0] * len(config.labels)
+    positive = [0] * len(labels)
+    negative = [0] * len(labels)
+    category_counts = [[0] * len(labels) for i in range(len(categories))]
     for record in records:
         pos = record.pos
         neg = record.neg
         for p in pos:
-            positive[config.labels.index(p)] = positive[config.labels.index(p)] + 1
+            index = labels.index(p)
+            positive[index] = positive[index] + 1
+            category_index = categories.index(record.category)
+            category_counts[category_index][index] = category_counts[category_index][index] + 1
         for n in neg:
-            negative[config.labels.index(n)] = negative[config.labels.index(n)] + 1
+            negative[labels.index(n)] = negative[labels.index(n)] + 1
+    print("LABELS")
     for i in range(len(positive)):
-        print(config.labels[i], "positive: ", positive[i], "negative: ", negative[i])
+        print(labels[i])
+    print("POSITIVE COUNTS")
+    for i in range(len(positive)):
+        print(positive[i])
+    print("CATEGORY COUNTS")
+    for i in range(len(categories)):
+        print(categories[i].category)
+        for j in range(len(positive)):
+            print(category_counts[i][j])
+
+    for i in range(len(positive)):
+        print(labels[i], "positive: ", positive[i], "negative: ", negative[i])
 
 def organize_image_data(records):
-    train = '/home/allparel/Allparel-ML/datasets/train/'
-    validation = '/home/allparel/Allparel-ML/datasets/validation/'
     if not os.path.exists(train):
         os.makedirs(train)
     if not os.path.exists(validation):
@@ -166,7 +171,7 @@ def organize_image_data(records):
     i = 0
     n = 10
     for record in records:
-        for name in config.group_names: #BUG HERE
+        for name in group_names: #BUG HERE
             directory = train + name
             if i % n == 0:
                 directory = validation + '/' + name
@@ -174,12 +179,12 @@ def organize_image_data(records):
                 os.makedirs(directory)
 
 
-            for index in range(len(config.labels)):
+            for index in range(len(labels)):
                 img = record.filename.replace('.txt', '.jpg')
-                sub_directory = directory + '/' + config.labels[index]
+                sub_directory = directory + '/' + labels[index]
                 if not os.path.exists(sub_directory):
                     os.makedirs(sub_directory)
-                if config.labels[index] in record.pos:
+                if labels[index] in record.pos:
                     dst = sub_directory + '/' + img
                     src = data_directory + img
                     os.symlink(src, dst)
@@ -203,7 +208,7 @@ def read_image_labels():
 
 def clean_records(records):
     records = list(set(records))
-    records = [record for record in records if len(record.pos) > 0 or len(record.neg) > 0]
+    records = [record for record in records if record is not None and (len(record.pos) > 0 or len(record.neg) > 0)]
     return records
 
 def process_file(filename):
@@ -223,23 +228,86 @@ def process_file(filename):
     return text
 
 
+###############################################################
+#  DATABASE METHODS
+###############################################################
+
+def write_to_db(lines): # add url later
+    all_items = []
+    image_filenames = [os.path.join(data_directory, f) for f in os.listdir(data_directory) if f.endswith('.jpg')]
+    for i in range(len(lines)):
+        line = lines[i]
+        image_file = image_filenames[i]
+        collection.update({'image_file':image_file}, {"$set": {'description':line}}, upsert=True)
+    print("wrote lines", len(lines))
+
+def update_db_records(records):
+
+    client = MongoClient('localhost', 27017)
+    db = client.allparel
+    collection = db.clothes
+
+    for record in records:
+        r = {}
+        r['image_file'] = record.image_filename
+        r['description'] = record.description
+        r['category']= str(record.category)
+        r['positive_tags'] = record.pos
+        r['negative_tags'] = record.neg
+        collection.update({'image_file':record.image_filename}, {'$set':r}, upsert=True)
+
+def read_db_records():
+    client = MongoClient('localhost', 27017)
+    db = client.allparel
+    collection = db.clothes
+    db_records = collection.find()
+
+    records = []
+    for record in db_records:
+        image_file = record['image_file']
+        description = record['description']
+        category = None
+        pos = None
+        neg = None
+        if 'category' in record:
+            category = record['category']
+        if 'positive_tags' in record:
+            pos = record['positive_tags']
+        if 'negative_tags' in record:
+            neg = record['negative_tags']
+        records.append(Record(image_file, description, category, pos, neg))
+    return records
+
+def chunkify(records):
+    chunk_records = []
+    chunk_size = int(len(records)/num_threads)
+    for i in range(num_threads - 1):
+        chunk_records.append(records[i*chunk_size :(i+1)*chunk_size])
+    chunk_records.append(records[(num_threads - 1)*chunk_size:])
 
 
-num_threads = 24
-p = Pool(num_threads)
-files = [f for f in os.listdir(data_directory) if f.endswith('.txt')]
-lines = p.map(process_file, files)
-print("done processing files")
-records = p.starmap(process_line, [(files[i], lines[i]) for i in range(len(files))])
-#records = [y for x in records for y in x]
-print("done processing lines")
-records = [r for r in records if r is not None]
-records = clean_records(records)
+# Reading files
+#files = [f for f in os.listdir(data_directory) if f.endswith('.txt')]
+#lines = p.map(process_file, files)
+#records = p.starmap(process_line, [(files[i], lines[i]) for i in range(len(files))])
+
+# Updating database
+#chunk_records = chunkify(records)
+#p.map(update_db_records, chunk_records)
+#print("total written records", len(records))
+
+# Reading from database
+records = read_db_records()
+print('done reading records')
+
+clean_records(records)
+
+# Write training files
 write_image_labels(records)
 write_labels(len(records))
-print("total written records", len(records))
 organize_image_data(records)
 print("done organizing data")
-count_per_label(records)
 
-#records = read_image_labels()
+# Data stats
+count_per_label(records)
+#tests.top_tags(lines)

@@ -29,14 +29,14 @@ labels = [
 
 error = "errorCode"
 categories = [
-    'jeans',
+    #'jeans',
     'dresses',
     'womens-intimates',
     'jackets',
     'womens-outerwear',
     'womens-pants',
-    'shorts',
-    'skirts',
+    #'shorts',
+    #'skirts',
     'sweaters',
     'swimsuits',
     'sweatshirts',
@@ -48,79 +48,79 @@ categories = [
     'plus-sizes',
     'teen-girls-clothes',
     'womens-clothes',
-    'womens-shoes',
-    'boots',
-    'evening-shoes',
-    'flats',
-    'mules-and-clogs',
-    'platforms',
-    'pumps',
-    'sandals',
-    'womens-sneakers',
-    'wedges',
-    'mens-shoes',
-    'mens-boots',
-    'mens-sandals',
-    'mens-lace-up-shoes',
-    'mens-slip-ons-shoes',
-    'mens-sneakers',
-    'girls-shoes',
-    'boys-shoes',
-    'backpacks',
-    'clutches',
-    'hobo-bags',
-    'satchels',
-    'shoulder-bags',
-    'tote-bags',
-    'wallets',
-    'handbags',
-    'mens-bags',
-    'mens-messenger-bags',
-    'mens-tote-bags',
-    'mens-business-bags',
-    'mens-backpacks',
-    'mens-sports-bags'
-    'womens-accessories',
-    'belts',
-    'womens-eyewear',
-    'gloves',
-    'hats',
-    'jewelry',
-    'scarves',
-    'womens-tech-accessories',
-    'mens-accessories',
-    'mens-belts',
-    'mens-eyewear',
-    'mens-gloves',
-    'mens-hats',
-    'mens-scarves',
-    'mens-tech-accessories',
-    'mens-wallets',
+    #'womens-shoes',
+    #'boots',
+    #'evening-shoes',
+    #'flats',
+    #'mules-and-clogs',
+    #'platforms',
+    #'pumps',
+    #'sandals',
+    #'womens-sneakers',
+    #'wedges',
+    #'mens-shoes',
+    #'mens-boots',
+    #'mens-sandals',
+    #'mens-lace-up-shoes',
+    #'mens-slip-ons-shoes',
+    #'mens-sneakers',
+    #'girls-shoes',
+    #'boys-shoes',
+    #'backpacks',
+    #'clutches',
+    #'hobo-bags',
+    #'satchels',
+    #'shoulder-bags',
+    #'tote-bags',
+    #'wallets',
+    #'handbags',
+    #'mens-bags',
+    #'mens-messenger-bags',
+    #'mens-tote-bags',
+    #'mens-business-bags',
+    #'mens-backpacks',
+    #'mens-sports-bags'
+    #'womens-accessories',
+    #'belts',
+    #'womens-eyewear',
+    #'gloves',
+    #'hats',
+    #'jewelry',
+    #'scarves',
+    #'womens-tech-accessories',
+    #'mens-accessories',
+    #'mens-belts',
+    #'mens-eyewear',
+    #'mens-gloves',
+    #'mens-hats',
+    #'mens-scarves',
+    #'mens-tech-accessories',
+    #'mens-wallets',
     'mens-clothes',
     'mens-athletic',
-    'mens-bags',
-    'mens-jeans',
+    #'mens-bags',
+    #'mens-jeans',
     'mens-outerwear',
-    'mens-pants',
+    #'mens-pants',
     'mens-shirts',
-    'mens-shorts',
-    'mens-shoes',
+    #'mens-shorts',
+    #'mens-shoes',
     'mens-suits',
     'mens-sweaters',
     'mens-sweatshirts',
-    'mens-swimsuits',
-    'mens-ties',
+    #'mens-swimsuits',
+    #'mens-ties',
     'girls-dresses',
     'girls-outerwear',
-    'girls-pants',
-    'girls-shoes',
-    'girls-skirts',
+    #'girls-pants',
+    #'girls-shoes',
+    #'girls-skirts',
     'girls-tops',
     'girls',
-    'boys-outerwear',
-    'boys-pants',
-    'boys-shoes',
-    'boys-shorts',
+    #'boys-outerwear',
+    #'boys-pants',
+    #'boys-shoes',
+    #'boys-shorts',
     'boys-sweaters',
     'boys-tops',
     'boys'
@@ -153,13 +153,12 @@ def scrape_offset(category, sort, is_search, label, offset):
     ua = UserAgent()
     header = {'User-Agent': str(ua.chrome)}
     if is_search:
-        print(category, sort, offset, is_search, label)
-        url = "https://www.shopstyle.com/api/v2/site/search?abbreviatedCategoryHistogram=true&cat=" + category + "&device=desktop&filters=Size%2CColor%2CCategory%2CTopRetailer%2CTopBrand%2CHeelHeight&fts=" + label + "&includeLooks=true&includeProducts=true&includeSavedQueryId=true&limit=40&locales=all&maxNumFilters=1000&maxQuickFilters=30&numLooks=20&offset=" + str(offset) + "&numSponsoredProducts=10&pid=shopstyle&prevCat=cocktail-dresses&productScore=" + sort + "&quickFilterTypes=brand&quickFilterTypes=color&quickFilterTypes=fts&url=%2Fbrowse%2Fdresses&useElasticsearch=true&view=angular2"
+        url = "https://www.shopstyle.com/api/v2/site/search?abbreviatedCategoryHistogram=true&cat=" + category + "&device=desktop&filters=Size%2CColor%2CCategory%2CTopRetailer%2CTopBrand%2CHeelHeight&fts=" + label + "&includeLooks=true&includeProducts=true&includeSavedQueryId=true&limit=40&locales=all&maxNumFilters=1000&maxQuickFilters=30&numLooks=20&offset=" + str(offset) + "&numSponsoredProducts=10&pid=shopstyle&prevCat=cocktail-dresses&productScore=" + sort + "&quickFilterTypes=brand&quickFilterTypes=color&quickFilterTypes=fts&url=%2Fbrowse%2F" + category + "&useElasticsearch=true&view=angular2"
     else:
         url = 'https://www.shopstyle.com/api/v2/products?cat=' + category + '&device=desktop&includeLooks=true&includeProducts=true&includeSavedQueryId=true&limit=1000&locales=all&maxNumFilters=1000&numLooks=20&offset=' + str(offset) + '&pid=shopstyle&prevCat=mens-shirts&productScore=' + sort + '&url=%2Fbrowse%2F' + category + '&view=angular'
 
     if offset % 1000 == 0:
-        print('SORT: ', sort, 'CATEGORY: ', category, ' OFFSET ', offset)
+        print('SORT: ', sort, 'CATEGORY: ', category, ' OFFSET ', offset, 'URL', url)
 
     try:
         response = requests.get(url, headers=header)
@@ -203,7 +202,7 @@ def scrape_offset(category, sort, is_search, label, offset):
 
         # download image
         try: 
-            if sort in sorts:
+            if not label:
                 image = p["image"]["sizes"]["Best"]["url"]
             else:
                 u = "https://img.shopstyle-cdn.com/sim/"
@@ -238,7 +237,7 @@ def scrape_offset(category, sort, is_search, label, offset):
     #    return 
 
 def scrape_label(p, category, sort, label):
-    url = "https://www.shopstyle.com/api/v2/site/search?abbreviatedCategoryHistogram=true&cat=dresses&device=desktop&filters=Size%2CColor%2CCategory%2CTopRetailer%2CTopBrand%2CHeelHeight&fts=" + label + "&includeLooks=true&includeProducts=true&includeSavedQueryId=true&limit=40&locales=all&maxNumFilters=1000&maxQuickFilters=30&numLooks=20&offset=" + str(0) + "&numSponsoredProducts=10&pid=shopstyle&prevCat=cocktail-dresses&productScore=LessPopularityEPC&quickFilterTypes=brand&quickFilterTypes=color&quickFilterTypes=fts&url=%2Fbrowse%2Fdresses&useElasticsearch=true&view=angular2"
+    url = "https://www.shopstyle.com/api/v2/site/search?abbreviatedCategoryHistogram=true&cat=" + category + "&device=desktop&filters=Size%2CColor%2CCategory%2CTopRetailer%2CTopBrand%2CHeelHeight&fts=" + label + "&includeLooks=true&includeProducts=true&includeSavedQueryId=true&limit=1000&locales=all&maxNumFilters=1000&maxQuickFilters=30&numLooks=20&offset=" + str(0) + "&numSponsoredProducts=10&pid=shopstyle&prevCat=cocktail-dresses&productScore=" + sort + "&quickFilterTypes=brand&quickFilterTypes=color&quickFilterTypes=fts&url=%2Fbrowse%2F" + category + "&useElasticsearch=true&view=angular2"
 
     response = requests.get(url)
 

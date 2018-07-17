@@ -1,30 +1,57 @@
-shirt_sub_categories = ['tshirt','croptop', 'polo', 'tank', 'blouse']
-dress_sub_categories = ['gown']
-pant_sub_categories = ['jeans', 'slacks', 'sweatpants']
+shirt_sub_categories = ['tshirt','croptop', 'polo', 'tank', 'blouse', 'cardigan', 'sweater', 'blouse', 'jacket', 'hoodie', 'jacket']
+dress_sub_categories = ['gown', 'romper','jumpsuit']
+pant_sub_categories = ['dresspants','jeans', 'slacks', 'sweatpants', 'shorts', 'leggings']
 skirt_sub_categories = []
-# RULE: CAN ONLY HAVE ONE LABEL FROM EACH
+other = ['kimono', 'coat']
+
+shirt_pattern = ['raglan']
+
+# kimono?????
+
+##################################################################################
+# GROUPS: Each item can only be labelled with one label from each group
+##################################################################################
 categories = ['shirt', 'dress', 'pant', 'skirt']
 sub_categories = shirt_sub_categories + dress_sub_categories + pant_sub_categories + skirt_sub_categories
-neck = ['vneck', 'crewneck', 'scoopneck', 'sweetheartneck', 'turtleneck', 'highneck', 'roundneck', 'offtheshoulder', 'collar']
-#sleeve = ['longsleeve', 'shortsleeve', 'bellsleeve', 'raglansleeve', 'threequartersleeve', 'fluttersleeve', 'insleeve', 'nosleeve']
-#color = ['black', 'white', 'blue', 'red', 'multicolor', 'grey', 'navy', 'red', 'pink', 'dark']
-#pattern = ['logo', 'floral', 'graphic', 'pattern', 'printed', 'tonal', 'embroidered', 'ruffled', 'stripe']
-#fit = ['slim', 'relaxed']
-# material - could do but not sure how you get that from images
-material = ['polyester', 'knit', 'jersey', 'lace', 'ribbed', 'woven', 'denim', 'silk']
-style = ['casual', 'straps', 'slit']
-length = ['mini', 'midi', 'maxi', 'long', 'short']
-labels = neck #categories + sub_categories + neck + sleeve + color + pattern + fit + material + style + length
-groups = [neck] #[categories, sub_categories, neck#, sleeve, color, pattern, fit, material, style, length]
-group_names = ['neck']
+neck = ['vneck', 'crewneck', 'scoopneck', 'sweetheartneck', 'turtleneck', 'highneck', 'offtheshoulder', 'collar', 'boatneck', 'splitneck', 'halter']
+sleeve = ['longsleeve', 'shortsleeve', 'bellsleeve', 'raglansleeve', 'threequartersleeve', 'fluttersleeve', 'sleeveless']
+#maybe seperate sleeve length and sleeve type?
 
+color = ['black', 'white', 'blue', 'red', 'multicolor', 'grey', 'navy', 'red', 'pink', 'dark', 'light']
+pattern = ['logo', 'floral', 'graphic', 'pattern', 'printed', 'tonal', 'embroidered', 'stripe', 'paisley', 'distressed', 'dot', 'colorblock', 'plaid', 'leopard', 'raglan']
+#tribal
+material = ['polyester', 'knit', 'jersey', 'lace', 'denim', 'silk', 'chiffon', 'leather', 'cotton', 'slub', 'linen', 'tweed', 'crochet', 'mesh']
+texture = ['ribbed', 'pleated', 'woven']
+
+style = ['casual', 'slit', 'highslit', 'fringehem', 'yoga']
+fit = ['slim', 'relaxed', 'boxy', 'skinny','pencil', 'sheath']
+
+pant_shape = ['boyfriend', 'skinny', 'bootcut', 'crop']
+
+shape = ['peasant', 'muscle', 'surplice', 'peplum', 'dolman', 'kimono'] + pant_shape
+
+length = ['mini', 'midi', 'maxi','long', 'short', 'crop'] 
+
+#Single label groups
+INVALID = ['heathered', 'ribbed', 'hood', 'lattice', 'drape', 'ruffle', 'strappy', 'racerback', 'deepv', 'panel', 'highslit']
+
+# Define replacements (i.e. synonyms) - some are defined per category
 all_replacements = {
+    'tee':'tshirt',
     "neckline":"neck", 
     "sleeved":"sleeve", 
     "sleeves":"sleeve", 
+    'hooded':'hood', 
+    'ruffled':'ruffle',
     "cuff":"cuffs", 
     "nosleeve": "sleeveless",
     "pants": "pant",
+    "roundneck":"crewneck",
+    'draped':'drape',
+    "uneck":"crewneck", 
+    "fringedhem":"fringehem", 
+    "longline":"long", 
+    "cropped":"crop"
 }
 dress_replacements = {
     "body length": "maxi",
@@ -32,7 +59,8 @@ dress_replacements = {
     "knee length": "midi"
 }
 pant_replacements = {
-    'sweats': 'sweatpants'
+    'sweats': 'sweatpants', 
+    'joggers':'sweatpants'
 } 
 skirt_replacements = {
     "body length": "maxi",
