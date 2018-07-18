@@ -50,14 +50,14 @@ def main():
         filename = os.path.basename(predict_generator.filenames[index])
         filepath = config.data_loader.full_image_dir + filename
         print(filepath)
-        # db_record = collection.find_one({'image_file': filepath})
-        # predicted_tags = db_record.get("predicted_tags", {})
-        # predicted_confidences = db_record.get("predicted_confidences", {})
+        db_record = collection.find_one({'image_file': filepath})
+        predicted_tags = db_record.get("predicted_tags", {})
+        predicted_confidences = db_record.get("predicted_confidences", {})
         
         cls = np.argmax(prediction, axis=-1)
         conf = prediction[cls]
-        # predicted_tags[config.predictor.tag_name] = labels[cls]
-        # predicted_confidences[config.predictor.tag_name] = conf
+        predicted_tags[config.predictor.tag_name] = labels[cls]
+        predicted_confidences[config.predictor.tag_name] = conf
         print("filename: ", 
             filename,
             "prediction: ", prediction,
