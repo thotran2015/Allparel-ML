@@ -22,7 +22,7 @@ train = '/home/allparel/Allparel-ML/datasets/train/'
 validation = '/home/allparel/Allparel-ML/datasets/validation/'
  
 class Record:
-    def __init__(self, image_filename, description, category=None, pos=None, neg=None):
+    def __init__(self, image_filename, description, category=None, pos=[], neg=[]):
         self.image_filename = image_filename
         self.description = description
         self.category =  category
@@ -52,11 +52,6 @@ categories = [dress, shirt, pant, skirt]
 groups = [config.neck]
 group_names = ['neck']
 labels = config.neck
-
-# Multiprocessing
-num_threads = 24
-p = Pool(num_threads)
-
 #Current Approach:
 #   * consider all 1-3 grams 
 #   * lump together anything with 1/3 character diff
@@ -105,13 +100,15 @@ def get_category(line):
     
 def process_line(filename, line):
     # Determine category for determining labels
+    image_file = data_directory + filename.replace('.txt','.jpg')
     category = get_category(line)
-    if category is None:
-        return
-    pos_tags = positive_tags(category, line)
-    neg_tags = negative_tags(pos_tags)
+    pos_tags = []
+    neg_tags = []
+    if category is not None:
+        pos_tags = positive_tags(category, line)
+        neg_tags = negative_tags(pos_tags)
    
-    record = Record(filename, line, category, pos_tags, neg_tags)
+    record = Record(image_file, line, category, pos_tags, neg_tags)
     return record
 
 def write_image_labels(records):
@@ -208,7 +205,9 @@ def read_image_labels():
 
 def clean_records(records):
     records = list(set(records))
-    records = [record for record in records if record is not None and (len(record.pos) > 0 or len(record.neg) > 0)]
+    #records = [record for record in records if record is not None and (len(record.pos) > 0 or len(record.neg) > 0)]
+
+    records = [record for record in records if record is not None]
     return records
 
 def process_file(filename):
@@ -247,6 +246,7 @@ def update_db_records(records):
     db = client.allparel
     collection = db.clothes
 
+    r_all = []
     for record in records:
         r = {}
         r['image_file'] = record.image_filename
@@ -254,7 +254,9 @@ def update_db_records(records):
         r['category']= str(record.category)
         r['positive_tags'] = record.pos
         r['negative_tags'] = record.neg
-        collection.update({'image_file':record.image_filename}, {'$set':r}, upsert=True)
+        r_all.append(r)
+        #collection.update({'image_file':record.image_filename}, {'$set':r}, upsert=True)
+    collection.insert_many(r_all)
 
 def read_db_records():
     client = MongoClient('localhost', 27017)
@@ -284,30 +286,46 @@ def chunkify(records):
     for i in range(num_threads - 1):
         chunk_records.append(records[i*chunk_size :(i+1)*chunk_size])
     chunk_records.append(records[(num_threads - 1)*chunk_size:])
+    return chunk_records
+
+
+# Multiprocessing
+num_threads = 24
+p = Pool(num_threads)
 
 
 # Reading files
-#files = [f for f in os.listdir(data_directory) if f.endswith('.txt')]
-#lines = p.map(process_file, files)
-#records = p.starmap(process_line, [(files[i], lines[i]) for i in range(len(files))])
+files = [f for f in os.listdir(data_directory) if f.endswith('.txt')]
+print('processing files', len(files))
+lines = p.map(process_file, files)
+records = p.starmap(process_line, [(files[i], lines[i]) for i in range(len(files))])
+print('done processing', len(records))
+records = clean_records(records)
+print('done cleaning', len(records))
+
 
 # Updating database
-#chunk_records = chunkify(records)
-#p.map(update_db_records, chunk_records)
+chunk_records = chunkify(records)
+total_count = 0
+for c in chunk_records:
+    total_count = total_count + len(c)
+if total_count != len(records):
+    print("CHUNK ERROR", total_count)
+    sys.exit()
+p.map(update_db_records, chunk_records)
 #print("total written records", len(records))
 
 # Reading from database
-records = read_db_records()
+#records = read_db_records()
 print('done reading records')
 
-clean_records(records)
 
 # Write training files
-write_image_labels(records)
-write_labels(len(records))
-organize_image_data(records)
+#write_image_labels(records)
+#write_labels(len(records))
+#organize_image_data(records)
 print("done organizing data")
 
 # Data stats
-count_per_label(records)
+#count_per_label(records)
 #tests.top_tags(lines)

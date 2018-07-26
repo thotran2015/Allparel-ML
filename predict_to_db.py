@@ -44,31 +44,44 @@ def main():
     client = MongoClient('localhost', 27017)
     db = client.allparel
     collection = db.clothes
+    bulk = collection.initialize_unordered_bulk_op()
+    counter = 0
     for index, prediction in enumerate(predictions):
         if index >= len(predict_generator.filenames):
             break
         filename = os.path.basename(predict_generator.filenames[index])
         filepath = config.data_loader.full_image_dir + filename
         print(filepath)
-        db_record = collection.find_one({'image_file': filepath})
-        predicted_tags = db_record.get("predicted_tags", {})
-        predicted_confidences = db_record.get("predicted_confidences", {})
+        #db_record = collection.find_one({'image_file': filepath})
+        #predicted_tags = db_record.get("predicted_tags", {})
+        #predicted_confidences = db_record.get("predicted_confidences", {})
         
         cls = np.argmax(prediction, axis=-1)
         conf = prediction[cls]
-        predicted_tags[config.predictor.tag_name] = labels[cls]
-        predicted_confidences[config.predictor.tag_name] = conf
-        print("filename: ", 
-            filename,
-            "prediction: ", prediction,
-            "class: ", labels[cls],
-            "confidence: ", conf
-        )
+        predicted_tags = [labels[cls]]
+        predicted_confidences = [float(prediction[cls])]
+        #predicted_tags[config.predictor.tag_name] = labels[cls]
+        #predicted_confidences[config.predictor.tag_name] = conf
+
+        update_dict = { 'allparel_tags': predicted_tags, 'predicted_confidences': predicted_confidences}
+        bulk.find({'image_file':filepath}).update({ '$set': update_dict})
+        counter = counter + 1
+        if counter % 10 == 0:
+            bulk.execute()
+            bulk = db.testdata.initialize_ordered_bulk_op()
+            print("COUNT: ", counter, "filename: ", 
+                filename,
+                "prediction: ", predicted_tags,
+                "confidence: ", predicted_confidences
+            )
+
         # update_dict = {'predicted_tags': predicted_tags, 'predicted_confidences': predicted_confidences}
         # collection.update(
         #     {'image_file':filepath}, 
         #     {'$set':update_dict}, 
         #     upsert=True)
+    if counter % 1000 != 0:
+        bulk.execute()
 
 if __name__ == '__main__':
     main()
