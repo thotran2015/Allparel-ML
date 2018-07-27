@@ -14,6 +14,15 @@ import config
 import category
 import util
 
+# Configuration
+dress = category.Category('dress', config.dress_sub_categories, config.dress_replacements)
+shirt = category.Category('shirt', config.shirt_sub_categories, config.shirt_replacements)
+pant = category.Category('pant',   config.pant_sub_categories,  config.pant_replacements)
+skirt = category.Category('skirt', config.skirt_sub_categories, config.skirt_replacements)
+categories = [dress, shirt, pant, skirt] #categries to include
+groups = [config.neck #, config.other_group]
+group_names = ['neck' #, 'other_group']
+labels = config.neck # + config.other_group
 
 data_directory = "/home/allparel/Allparel-ML/datasets/images/"
 label_directory = "/home/allparel/Allparel-ML/datasets/"
@@ -43,15 +52,6 @@ class Record:
         return self.image_filename == other.image_filename
 
 
-# Configuration
-dress = category.Category('dress', config.dress_sub_categories, config.dress_replacements)
-shirt = category.Category('shirt', config.shirt_sub_categories, config.shirt_replacements)
-pant = category.Category('pant',   config.pant_sub_categories,  config.pant_replacements)
-skirt = category.Category('skirt', config.skirt_sub_categories, config.skirt_replacements)
-categories = [dress, shirt, pant, skirt]
-groups = [config.neck]
-group_names = ['neck']
-labels = config.neck
 #Current Approach:
 #   * consider all 1-3 grams 
 #   * lump together anything with 1/3 character diff
@@ -305,25 +305,25 @@ print('done cleaning', len(records))
 
 
 # Updating database
-chunk_records = chunkify(records)
-total_count = 0
-for c in chunk_records:
-    total_count = total_count + len(c)
-if total_count != len(records):
-    print("CHUNK ERROR", total_count)
-    sys.exit()
-p.map(update_db_records, chunk_records)
+#chunk_records = chunkify(records)
+#total_count = 0
+#for c in chunk_records:
+#    total_count = total_count + len(c)
+#if total_count != len(records):
+#    print("CHUNK ERROR", total_count)
+#    sys.exit()
+#p.map(update_db_records, chunk_records)
 #print("total written records", len(records))
 
 # Reading from database
-#records = read_db_records()
+records = read_db_records()
 print('done reading records')
 
 
 # Write training files
-#write_image_labels(records)
-#write_labels(len(records))
-#organize_image_data(records)
+write_image_labels(records)
+write_labels(len(records))
+organize_image_data(records)
 print("done organizing data")
 
 # Data stats
