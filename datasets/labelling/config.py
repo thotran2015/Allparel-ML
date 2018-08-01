@@ -35,6 +35,8 @@ length = ['mini', 'midi', 'maxi','long', 'short', 'crop']
 #Single label groups
 INVALID = ['heathered', 'ribbed', 'hood', 'lattice', 'drape', 'ruffle', 'strappy', 'racerback', 'deepv', 'panel', 'highslit']
 
+all_labels = list(set(categories + sub_categories + neck + sleeve + color + pattern + material + texture + style + fit + pant_shape + shape + length + INVALID))
+
 # Define replacements (i.e. synonyms) - some are defined per category
 all_replacements = {
     'tee':'tshirt',

@@ -20,15 +20,18 @@ shirt = category.Category('shirt', config.shirt_sub_categories, config.shirt_rep
 pant = category.Category('pant',   config.pant_sub_categories,  config.pant_replacements)
 skirt = category.Category('skirt', config.skirt_sub_categories, config.skirt_replacements)
 categories = [dress, shirt, pant, skirt] #categries to include
-groups = [config.pattern] #, config.other_group]
-group_names = ['pattern'] #, 'other_group']
-labels = config.pattern # + config.other_group
+groups = [config.pattern, config.length] #, config.other_group]
+group_names = ['pattern', 'length'] #, 'other_group']
+labels = config.pattern + config.length # + config.other_group
 
 data_directory = "/home/allparel/Allparel-ML/datasets/images/"
 label_directory = "/home/allparel/Allparel-ML/datasets/"
 
 train = '/home/allparel/Allparel-ML/datasets/train/'
 validation = '/home/allparel/Allparel-ML/datasets/validation/'
+
+# Punctuation replacement table (for description cleaning)
+table = str.maketrans(' ', ' ', string.punctuation)
  
 class Record:
     def __init__(self, image_filename, title, description, category=None, pos=[], neg=[]):
@@ -104,7 +107,8 @@ def process_line(filename, line):
     image_file = data_directory + filename.replace('.txt','.jpg')
     description = simplify_text(line["description"])
     title = simplify_text(line["title"])
-    category = get_category(title)
+    #category = get_category(title)
+    category = get_category(description)
     pos_tags = []
     neg_tags = []
     if category is not None:
@@ -115,23 +119,30 @@ def process_line(filename, line):
     return record
 
 def write_image_labels(records):
-    with open(os.path.join(label_directory,"image_labels.txt"), "w") as outfile:
-        for record in records:
-            pos_string = ''
-            neg_string = ''
-            for p in record.pos:
-                pos_string = pos_string + ' ' + str(labels.index(p))
-            for n in record.neg:
-                neg_string = neg_string + ' ' + str(labels.index(n))
-            line = record.filename + ',' + pos_string + ',' + neg_string + '\n'
-            outfile.write(line)
+    for group in groups:
+        filename = group_names[groups.index(group)] + "_image_labels.txt"
+        num_records = 0
+        with open(os.path.join(label_directory, filename), "w") as outfile:
+            for record in records:
+                pos_string = ''
+                neg_string = ''
+            
+                for p in record.pos:
+                    if p in group:
+                        pos_string = pos_string + ' ' + str(group.index(p))
+                for n in record.neg:
+                    if n in group:
+                        neg_string = neg_string + ' ' + str(group.index(n))
 
-def write_labels(num_records):
-    print("total num", num_records)
-    with open(os.path.join(label_directory,"labels.txt"), "w") as outfile:
-        outfile.write(str(num_records) + '\n')
-        for l in labels:
-            outfile.write(l + '\n')
+                if len(pos_string) > 0:
+                    line = record.image_filename + ',' + pos_string + ',' + neg_string + '\n'
+                    outfile.write(line)
+                    num_records = num_records + 1
+        label_filename = group_names[groups.index(group)] + "_labels.txt"
+        with open(os.path.join(label_directory, label_filename), "w") as outfile:
+            outfile.write(str(num_records) + '\n')
+            for l in group:
+                outfile.write(l + '\n')
 
 def count_per_label(records):
     positive = [0] * len(labels)
@@ -178,33 +189,18 @@ def organize_image_data(records):
             if not os.path.exists(directory):
                 os.makedirs(directory)
 
-
-            for index in range(len(labels)):
-                img = record.filename.replace('.txt', '.jpg')
-                sub_directory = directory + '/' + labels[index]
+            group_labels = groups[group_names.index(name)]
+            for index in range(len(group_labels)):
+                img = os.path.basename(record.image_filename)
+                sub_directory = directory + '/' + group_labels[index]
                 if not os.path.exists(sub_directory):
                     os.makedirs(sub_directory)
-                if labels[index] in record.pos:
+                if group_labels[index] in record.pos:
                     dst = sub_directory + '/' + img
                     src = data_directory + img
                     os.symlink(src, dst)
-            i = i + 1
+        i = i + 1
 
-def read_image_labels():
-    records = []
-    with open("image_labels.txt", "r") as infile:
-        for line in infile:
-            line = line.replace("\n", "")
-            line = line.split(",")
-            pos = []
-            neg = []
-            for p in line[1].split():
-                pos.append(int(p))
-            for n in line[2].split():
-                neg.append(int(n))
-            record = Record(line[0], pos, neg)
-            records.append(record)
-    return records
 
 def clean_records(records):
     records = list(set(records))
@@ -287,16 +283,20 @@ def read_db_records():
     for record in db_records:
         image_file = record['image_file']
         description = record['description']
+        
         category = None
-        pos = None
-        neg = None
+        pos = []
+        neg = []
+        title = None
+        if 'title' in record:
+            title = record['title']
         if 'category' in record:
             category = record['category']
         if 'positive_tags' in record:
             pos = record['positive_tags']
         if 'negative_tags' in record:
             neg = record['negative_tags']
-        records.append(Record(image_file, description, category, pos, neg))
+        records.append(Record(image_file, title, description, category, pos, neg))
     return records
 
 def chunkify(records):
@@ -313,7 +313,7 @@ num_threads = 24
 p = Pool(num_threads)
 
 
-# Reading files
+## Reading files
 files = [f for f in os.listdir(data_directory) if f.endswith('.txt')]
 print('processing files', len(files))
 lines = p.map(process_file, files)
@@ -321,29 +321,28 @@ records = p.starmap(process_line, [(files[i], lines[i]) for i in range(len(files
 print('done processing', len(records))
 records = clean_records(records)
 print('done cleaning', len(records))
-
-
-# Updating database
-chunk_records = chunkify(records)
-total_count = 0
-for c in chunk_records:
-    total_count = total_count + len(c)
-if total_count != len(records):
-    print("CHUNK ERROR", total_count)
-    sys.exit()
-p.map(update_db_records, chunk_records)
-print("total written records", len(records))
+#
+#
+## Updating database
+#chunk_records = chunkify(records)
+#total_count = 0
+#for c in chunk_records:
+#    total_count = total_count + len(c)
+#if total_count != len(records):
+#    print("CHUNK ERROR", total_count)
+#    sys.exit()
+#p.map(update_db_records, chunk_records)
+#print("total written records", len(records))
 
 ## Reading from database
 #records = read_db_records()
-#print('done reading records')
+print('done reading records')
 #
 #
 ## Write training files
-#write_image_labels(records)
-#write_labels(len(records))
-#organize_image_data(records)
-#print("done organizing data")
+write_image_labels(records)
+organize_image_data(records)
+print("done organizing data")
 
 # Data stats
 #count_per_label(records)
