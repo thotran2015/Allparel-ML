@@ -6,7 +6,7 @@
     "name": "dataloader.Dataloader",
     "train_dir": "datasets/train/neck",
     "val_dir": "datasets/validation/neck",
-    "predict_dir": "datasets/train/neck",
+    "predict_dir": "datasets/predict",
     "full_image_dir": "/home/allparel/Allparel-ML/datasets/images/"
   },
   "model":{
@@ -25,8 +25,8 @@
     "class_count": 11
   },
   "predictor":{
-    "steps": 1,
-    "process_all": true,
+    "steps": 10,
+    "process_all": false,
     "batch_size": 192,
     "tag_name": "neckline"
   },

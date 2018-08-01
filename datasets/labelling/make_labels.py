@@ -20,9 +20,9 @@ shirt = category.Category('shirt', config.shirt_sub_categories, config.shirt_rep
 pant = category.Category('pant',   config.pant_sub_categories,  config.pant_replacements)
 skirt = category.Category('skirt', config.skirt_sub_categories, config.skirt_replacements)
 categories = [dress, shirt, pant, skirt] #categries to include
-groups = [config.neck #, config.other_group]
-group_names = ['neck' #, 'other_group']
-labels = config.neck # + config.other_group
+groups = [config.pattern] #, config.other_group]
+group_names = ['pattern'] #, 'other_group']
+labels = config.pattern # + config.other_group
 
 data_directory = "/home/allparel/Allparel-ML/datasets/images/"
 label_directory = "/home/allparel/Allparel-ML/datasets/"
@@ -31,9 +31,10 @@ train = '/home/allparel/Allparel-ML/datasets/train/'
 validation = '/home/allparel/Allparel-ML/datasets/validation/'
  
 class Record:
-    def __init__(self, image_filename, description, category=None, pos=[], neg=[]):
+    def __init__(self, image_filename, title, description, category=None, pos=[], neg=[]):
         self.image_filename = image_filename
         self.description = description
+        self.title = title
         self.category =  category
         self.pos = pos
         self.neg = neg
@@ -101,14 +102,16 @@ def get_category(line):
 def process_line(filename, line):
     # Determine category for determining labels
     image_file = data_directory + filename.replace('.txt','.jpg')
-    category = get_category(line)
+    description = simplify_text(line["description"])
+    title = simplify_text(line["title"])
+    category = get_category(title)
     pos_tags = []
     neg_tags = []
     if category is not None:
-        pos_tags = positive_tags(category, line)
+        pos_tags = positive_tags(category, description)
         neg_tags = negative_tags(pos_tags)
    
-    record = Record(image_file, line, category, pos_tags, neg_tags)
+    record = Record(image_file, title, description, category, pos_tags, neg_tags)
     return record
 
 def write_image_labels(records):
@@ -219,8 +222,15 @@ def process_file(filename):
         color = json_data['colors'][0]['name']
     except:
         color = ''
-    data = json_data['description'] + color
-    text = BeautifulSoup(data, "lxml").get_text()
+    description = json_data['description'] + color
+    description = BeautifulSoup(description, "lxml").get_text()
+    #print(json_data)
+    title = json_data['name'] 
+    title = BeautifulSoup(title, "lxml").get_text()
+    category = json_data["categories"][0]["fullName"]
+    return {"title":title, "description":description, "category":category}
+
+def simplify_text(text):
     text = text.translate(table)
     text = ''.join(i for i in text if not i.isdigit())
     text = text.lower()
@@ -245,18 +255,27 @@ def update_db_records(records):
     client = MongoClient('localhost', 27017)
     db = client.allparel
     collection = db.clothes
+    bulk = collection.initialize_unordered_bulk_op()
 
     r_all = []
+    c = 0
     for record in records:
         r = {}
         r['image_file'] = record.image_filename
+        r['title'] = record.title
         r['description'] = record.description
         r['category']= str(record.category)
         r['positive_tags'] = record.pos
         r['negative_tags'] = record.neg
-        r_all.append(r)
+        bulk.find({'image_file':record.image_filename}).update({ '$set': r})
+        #r_all.append(r)
         #collection.update({'image_file':record.image_filename}, {'$set':r}, upsert=True)
-    collection.insert_many(r_all)
+        c = c + 1
+        if c % 1000 == 0:
+            printf("Written", c)
+            
+    #collection.insert_many(r_all)
+    bulk.execute()
 
 def read_db_records():
     client = MongoClient('localhost', 27017)
@@ -305,26 +324,26 @@ print('done cleaning', len(records))
 
 
 # Updating database
-#chunk_records = chunkify(records)
-#total_count = 0
-#for c in chunk_records:
-#    total_count = total_count + len(c)
-#if total_count != len(records):
-#    print("CHUNK ERROR", total_count)
-#    sys.exit()
-#p.map(update_db_records, chunk_records)
-#print("total written records", len(records))
+chunk_records = chunkify(records)
+total_count = 0
+for c in chunk_records:
+    total_count = total_count + len(c)
+if total_count != len(records):
+    print("CHUNK ERROR", total_count)
+    sys.exit()
+p.map(update_db_records, chunk_records)
+print("total written records", len(records))
 
-# Reading from database
-records = read_db_records()
-print('done reading records')
-
-
-# Write training files
-write_image_labels(records)
-write_labels(len(records))
-organize_image_data(records)
-print("done organizing data")
+## Reading from database
+#records = read_db_records()
+#print('done reading records')
+#
+#
+## Write training files
+#write_image_labels(records)
+#write_labels(len(records))
+#organize_image_data(records)
+#print("done organizing data")
 
 # Data stats
 #count_per_label(records)

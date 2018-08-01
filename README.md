@@ -1,4 +1,7 @@
-﻿# Data Scraping
+﻿# Setup
+Make sure mongo is running by running `mongo` in the terminal. If not running, start with `sudo service mongod start`.
+
+# Data Scraping
 To run the scraper on Shopstyle, run `cd datasets/scraping; python3 scrape.py`. 
 To run the scraper on Lyst, run `cd datasets/scraping/Lys; python3 getlyst.py`. (NOTE:does not check for existing images/records)
 
