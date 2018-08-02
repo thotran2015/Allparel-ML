@@ -14,15 +14,10 @@ import config
 import category
 import util
 
-# Configuration
-dress = category.Category('dress', config.dress_sub_categories, config.dress_replacements)
-shirt = category.Category('shirt', config.shirt_sub_categories, config.shirt_replacements)
-pant = category.Category('pant',   config.pant_sub_categories,  config.pant_replacements)
-skirt = category.Category('skirt', config.skirt_sub_categories, config.skirt_replacements)
-categories = [dress, shirt, pant, skirt] #categries to include
-groups = [config.pattern, config.length] #, config.other_group]
+categories = [config.dress, config.shirt, config.pant, config.skirt] #categries to include
+groups = [config.pattern.labels, config.length.labels] #, config.other_group]
 group_names = ['pattern', 'length'] #, 'other_group']
-labels = config.pattern + config.length # + config.other_group
+labels = config.pattern.labels + config.length.labels # + config.other_group
 
 data_directory = "/home/allparel/Allparel-ML/datasets/images/"
 label_directory = "/home/allparel/Allparel-ML/datasets/"
@@ -107,14 +102,14 @@ def process_line(filename, line):
     image_file = data_directory + filename.replace('.txt','.jpg')
     description = simplify_text(line["description"])
     title = simplify_text(line["title"])
+    category = line["category"]
+    old = simplify_text(line["category"])
     #category = get_category(title)
-    category = get_category(description)
-    pos_tags = []
-    neg_tags = []
-    if category is not None:
-        pos_tags = positive_tags(category, description)
-        neg_tags = negative_tags(pos_tags)
-   
+    category = get_category(simplify_text(category))
+    if category is None:
+        return 
+    pos_tags = positive_tags(category, description)
+    neg_tags = negative_tags(pos_tags)
     record = Record(image_file, title, description, category, pos_tags, neg_tags)
     return record
 
@@ -263,12 +258,12 @@ def update_db_records(records):
         r['category']= str(record.category)
         r['positive_tags'] = record.pos
         r['negative_tags'] = record.neg
-        bulk.find({'image_file':record.image_filename}).update({ '$set': r})
+        bulk.find({'image_file':record.image_filename}).upsert().update({ '$set': r})
         #r_all.append(r)
         #collection.update({'image_file':record.image_filename}, {'$set':r}, upsert=True)
         c = c + 1
         if c % 1000 == 0:
-            printf("Written", c)
+            print("Written", c)
             
     #collection.insert_many(r_all)
     bulk.execute()
@@ -323,16 +318,16 @@ records = clean_records(records)
 print('done cleaning', len(records))
 #
 #
-## Updating database
-#chunk_records = chunkify(records)
-#total_count = 0
-#for c in chunk_records:
-#    total_count = total_count + len(c)
-#if total_count != len(records):
-#    print("CHUNK ERROR", total_count)
-#    sys.exit()
-#p.map(update_db_records, chunk_records)
-#print("total written records", len(records))
+# Updating database
+chunk_records = chunkify(records)
+total_count = 0
+for c in chunk_records:
+    total_count = total_count + len(c)
+if total_count != len(records):
+    print("CHUNK ERROR", total_count)
+    sys.exit()
+p.map(update_db_records, chunk_records)
+print("total written records", len(records))
 
 ## Reading from database
 #records = read_db_records()
@@ -340,8 +335,8 @@ print('done reading records')
 #
 #
 ## Write training files
-write_image_labels(records)
-organize_image_data(records)
+#write_image_labels(records)
+#organize_image_data(records)
 print("done organizing data")
 
 # Data stats

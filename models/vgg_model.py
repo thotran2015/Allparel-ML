@@ -19,12 +19,16 @@ class VGGModel(BaseModel):
         super(VGGModel, self).__init__(config)
         self.num_classes = config.trainer.class_count
         self.batch_size = config.trainer.batch_size
+        self.num_gpus = config.trainer.num_gpus
         self.build_model()
     
     def build_model(self):
-        with tf.device("/cpu:0"):
+        if self.num_gpus > 1:
+            with tf.device("/cpu:0"):
+                self.model = vgg16.VGG16(include_top=True, weights=None, input_tensor=None, input_shape=None, pooling=None, classes=self.num_classes)
+            self.model = multi_gpu_model(self.model, gpus=self.num_gpus)
+        else:
             self.model = vgg16.VGG16(include_top=True, weights=None, input_tensor=None, input_shape=None, pooling=None, classes=self.num_classes)
-        self.model = multi_gpu_model(self.model, gpus=3)
         self.model.compile(
               loss="categorical_crossentropy",
               optimizer=self.config.model.optimizer,

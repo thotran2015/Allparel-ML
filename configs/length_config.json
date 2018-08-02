@@ -1,0 +1,48 @@
+{
+  "exp": {
+    "name": "length"
+  },
+  "data_loader": {
+    "name": "dataloader.Dataloader",
+    "train_dir": "datasets/train/length",
+    "val_dir": "datasets/validation/length",
+    "predict_dir": "datasets/predict",
+    "full_image_dir": "/home/allparel/Allparel-ML/datasets/images/"
+  },
+  "model":{
+    "name": "vgg_model.VGGModel",
+    "learning_rate": 0.001,
+    "optimizer": "sgd"
+  },
+  "trainer":{
+    "name": "simple_mnist_trainer.ModelTrainer",
+    "steps_per_epoch": 500,
+    "validation_steps": 50,
+    "num_epochs": 80, 
+    "batch_size": 64,
+    "validation_split":0.1,
+    "verbose_training": true,
+    "class_count": 6,
+    "num_gpus": 1
+  },
+  "predictor":{
+    "steps": 10,
+    "process_all": false,
+    "batch_size": 64,
+    "tag_name": "length"
+  },
+  "classification_report":{
+    "steps": 50,
+    "process_all": true
+  },
+  "callbacks":{
+    "checkpoint_monitor": "val_loss",
+    "checkpoint_mode": "min",
+    "checkpoint_save_best_only": true,
+   "checkpoint_save_weights_only": true,
+    "checkpoint_verbose": true,
+    "tensorboard_write_graph": true
+  },
+  "comet_api_key" : "Lz79lwvYjSOBnKjdfN5FqaYx0"
+}
+

@@ -1,6 +1,7 @@
 from comet_ml import Experiment 
 from data_loader.dataloader import get_data_loader
 from models.vgg_model import VGGModel
+from models.vgg_19_model import VGG19Model
 from trainers.trainer import ModelTrainer
 from utils.config import process_config
 from utils.dirs import create_dirs
@@ -20,7 +21,11 @@ def main():
     validation_generator = get_data_loader(config, False)
 
     print('Create the model.')
-    model = VGGModel(config)
+    if config.model.name == "vgg_model.VGG19Model":
+        print("using vgg19")
+        model = VGG19Model(config)
+    else:
+        model = VGGModel(config)
 
     # Load from previously trained 
     #model.load("/home/allparel/Allparel-ML/experiments/2018-07-02/vgg/checkpoints/vgg-20-0.93.hdf5")

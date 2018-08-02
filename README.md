@@ -34,6 +34,10 @@ To modify the configuration of the preprocessing, such as the labels contained i
 # Running Training
 `python3 main.py -c configs/vgg_config.json`
 
+# Generating Classification Report
+Edit top of file of `classification_report.py` to specify the model checkpoint and config file. You can also edit the classification_report section of the config file to specify how many steps should be used in the classification report. Then run the below command.
+`python3 classification_report.py`
+
 # Evaluation
 
 

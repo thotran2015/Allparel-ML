@@ -10,10 +10,10 @@ class Category:
     
     def in_category(self, text):
         for word in text.split():
-            if util.are_equal(word, self.category):
+            if self.category in word or util.are_equal(word, self.category):
                 return True
             for sub_cat in self.sub_categories:
-                if util.are_equal(word, sub_cat):
+                if sub_cat in word or util.are_equal(word, sub_cat):
                     return True
         return False
 
