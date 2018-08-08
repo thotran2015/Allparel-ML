@@ -12,13 +12,15 @@ import string
 from enum import Enum
 import config
 import category
+import record
 import util
 
-categories = [config.dress, config.shirt, config.pant, config.skirt] #categries to include
-groups = [config.pattern.labels, config.length.labels] #, config.other_group]
-group_names = ['pattern', 'length'] #, 'other_group']
-labels = config.pattern.labels + config.length.labels # + config.other_group
+groups = [config.neck, config.sleeve_shape, config.sleeve_length, config.color, config.pattern, config.material, config.texture, config.style, config.fit, config.pant_shape, config.shape, config.length]
 
+categories = [config.dress, config.shirt, config.pant, config.skirt] #categries to include
+labels = []
+for group in groups:
+    labels = labels + group.labels
 data_directory = "/home/allparel/Allparel-ML/datasets/images/"
 label_directory = "/home/allparel/Allparel-ML/datasets/"
 
@@ -27,29 +29,6 @@ validation = '/home/allparel/Allparel-ML/datasets/validation/'
 
 # Punctuation replacement table (for description cleaning)
 table = str.maketrans(' ', ' ', string.punctuation)
- 
-class Record:
-    def __init__(self, image_filename, title, description, category=None, pos=[], neg=[]):
-        self.image_filename = image_filename
-        self.description = description
-        self.title = title
-        self.category =  category
-        self.pos = pos
-        self.neg = neg
-        if self.category is None:
-            self.category = get_category(description)
-        if self.category is not None:
-            if self.pos is None:
-                self.pos = positive_tags(self.category, self.description)
-            if self.neg is None:
-                self.neg = negative_tags(self.pos)
-
-    def __hash__(self):
-        return hash(self.image_filename)
-
-    def __eq__(self, other):
-        return self.image_filename == other.image_filename
-
 
 #Current Approach:
 #   * consider all 1-3 grams 
@@ -78,17 +57,18 @@ def get_tags(category, text):
 def positive_tags(category, line):
     tags = get_tags(category, line)
     matched_tags = []
-    for t in tags:
-        if t in labels:
-            matched_tags.append(t)
+    for tag in tags:
+        for group in groups:
+            if tag in group.labels and group.has_category(category):
+                matched_tags.append(tag)
     return list(set(matched_tags))
 
 def negative_tags(tags):
     neg_tags = []
     for tag in tags:
         for group in groups:
-            if tag in group:
-                neg_tags = neg_tags + [g for g in group if g != tag]
+            if tag in group.labels:
+                neg_tags = neg_tags + [g for g in group.labels if g != tag]
     return list(set(neg_tags))
 
 def get_category(line):
@@ -96,26 +76,10 @@ def get_category(line):
         if cat.in_category(line):
             return cat
     return None
-    
-def process_line(filename, line):
-    # Determine category for determining labels
-    image_file = data_directory + filename.replace('.txt','.jpg')
-    description = simplify_text(line["description"])
-    title = simplify_text(line["title"])
-    category = line["category"]
-    old = simplify_text(line["category"])
-    #category = get_category(title)
-    category = get_category(simplify_text(category))
-    if category is None:
-        return 
-    pos_tags = positive_tags(category, description)
-    neg_tags = negative_tags(pos_tags)
-    record = Record(image_file, title, description, category, pos_tags, neg_tags)
-    return record
 
 def write_image_labels(records):
     for group in groups:
-        filename = group_names[groups.index(group)] + "_image_labels.txt"
+        filename = group.name + "_image_labels.txt"
         num_records = 0
         with open(os.path.join(label_directory, filename), "w") as outfile:
             for record in records:
@@ -123,20 +87,20 @@ def write_image_labels(records):
                 neg_string = ''
             
                 for p in record.pos:
-                    if p in group:
-                        pos_string = pos_string + ' ' + str(group.index(p))
+                    if p in group.labels:
+                        pos_string = pos_string + ' ' + str(group.labels.index(p))
                 for n in record.neg:
-                    if n in group:
-                        neg_string = neg_string + ' ' + str(group.index(n))
+                    if n in group.labels:
+                        neg_string = neg_string + ' ' + str(group.labels.index(n))
 
                 if len(pos_string) > 0:
                     line = record.image_filename + ',' + pos_string + ',' + neg_string + '\n'
                     outfile.write(line)
                     num_records = num_records + 1
-        label_filename = group_names[groups.index(group)] + "_labels.txt"
+        label_filename = group.name + "_labels.txt"
         with open(os.path.join(label_directory, label_filename), "w") as outfile:
             outfile.write(str(num_records) + '\n')
-            for l in group:
+            for l in group.labels:
                 outfile.write(l + '\n')
 
 def count_per_label(records):
@@ -177,23 +141,25 @@ def organize_image_data(records):
     i = 0
     n = 10
     for record in records:
-        for name in group_names: #BUG HERE
-            directory = train + name
+        for group in groups: #BUG HERE
+            directory = train + group.name
             if i % n == 0:
-                directory = validation + '/' + name
+                directory = validation + '/' + group.name
             if not os.path.exists(directory):
                 os.makedirs(directory)
 
-            group_labels = groups[group_names.index(name)]
-            for index in range(len(group_labels)):
+            for label in group.labels:
                 img = os.path.basename(record.image_filename)
-                sub_directory = directory + '/' + group_labels[index]
+                sub_directory = directory + '/' + label
                 if not os.path.exists(sub_directory):
                     os.makedirs(sub_directory)
-                if group_labels[index] in record.pos:
+                if label in record.pos:
                     dst = sub_directory + '/' + img
                     src = data_directory + img
-                    os.symlink(src, dst)
+                    if not os.path.lexists(dst):
+                        os.symlink(src, dst)
+                    #except Exception as e:
+                        
         i = i + 1
 
 
@@ -213,13 +179,41 @@ def process_file(filename):
         color = json_data['colors'][0]['name']
     except:
         color = ''
+    
+    image_filename = data_directory + filename.replace('.txt','.jpg')
     description = json_data['description'] + color
     description = BeautifulSoup(description, "lxml").get_text()
-    #print(json_data)
     title = json_data['name'] 
     title = BeautifulSoup(title, "lxml").get_text()
-    category = json_data["categories"][0]["fullName"]
-    return {"title":title, "description":description, "category":category}
+    raw_category = json_data["categories"][0]["fullName"]
+    product_url = json_data['clickUrl']
+    #category = get_category(title)
+    category = get_category(simplify_text(raw_category))
+    
+    if category is None:
+        return 
+    pos = positive_tags(category, simplify_text(description))
+    neg = negative_tags(pos)
+
+    return record.Record(image_filename, title, description, product_url, raw_category, category, pos, neg)
+
+#def process_line(filename, line):
+#    # Determine category for determining labels
+#    image_file = data_directory + filename.replace('.txt','.jpg')
+#    description = simplify_text(line["description"])
+#    title = simplify_text(line["title"])
+#    category = line["category"]
+#    old = simplify_text(line["category"])
+#    #category = get_category(title)
+#    category = get_category(simplify_text(category))
+#    if category is None:
+#        return 
+#    pos_tags = positive_tags(category, description)
+#    neg_tags = negative_tags(pos_tags)
+#    record = record.Record(image_file, title, description, category, pos_tags, neg_tags)
+#    return record
+
+
 
 def simplify_text(text):
     text = text.translate(table)
@@ -251,21 +245,11 @@ def update_db_records(records):
     r_all = []
     c = 0
     for record in records:
-        r = {}
-        r['image_file'] = record.image_filename
-        r['title'] = record.title
-        r['description'] = record.description
-        r['category']= str(record.category)
-        r['positive_tags'] = record.pos
-        r['negative_tags'] = record.neg
-        bulk.find({'image_file':record.image_filename}).upsert().update({ '$set': r})
-        #r_all.append(r)
-        #collection.update({'image_file':record.image_filename}, {'$set':r}, upsert=True)
+        bulk.find({'image_file':record.image_filename}).upsert().update({ '$set': record.dict()})
         c = c + 1
         if c % 1000 == 0:
             print("Written", c)
             
-    #collection.insert_many(r_all)
     bulk.execute()
 
 def read_db_records():
@@ -291,7 +275,7 @@ def read_db_records():
             pos = record['positive_tags']
         if 'negative_tags' in record:
             neg = record['negative_tags']
-        records.append(Record(image_file, title, description, category, pos, neg))
+        records.append(record.Record(image_file, title, description, category, pos, neg))
     return records
 
 def chunkify(records):
@@ -311,8 +295,8 @@ p = Pool(num_threads)
 ## Reading files
 files = [f for f in os.listdir(data_directory) if f.endswith('.txt')]
 print('processing files', len(files))
-lines = p.map(process_file, files)
-records = p.starmap(process_line, [(files[i], lines[i]) for i in range(len(files))])
+records = p.map(process_file, files)
+#records = p.starmap(process_line, [(files[i], lines[i]) for i in range(len(files))])
 print('done processing', len(records))
 records = clean_records(records)
 print('done cleaning', len(records))
@@ -331,12 +315,13 @@ print("total written records", len(records))
 
 ## Reading from database
 #records = read_db_records()
-print('done reading records')
-#
-#
-## Write training files
-#write_image_labels(records)
-#organize_image_data(records)
+#print('done reading records')
+
+
+# Write training files
+write_image_labels(records)
+print('done writing labels')
+organize_image_data(records)
 print("done organizing data")
 
 # Data stats

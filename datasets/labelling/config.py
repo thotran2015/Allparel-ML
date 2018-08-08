@@ -1,4 +1,5 @@
 import category
+import group
 
 shirt_sub_categories = ['tshirt','croptop', 'polo', 'tank', 'blouse', 'cardigan', 'sweater', 'blouse', 'jacket', 'hoodie', 'jacket', "top"]
 dress_sub_categories = ['gown', 'romper','jumpsuit']
@@ -63,12 +64,7 @@ skirt = category.Category(
 ##################################################################################
 # GROUPS: Each item can only be labelled with one label from each group
 ##################################################################################
-class Group:
-    def __init__(self, name, labels, categories):
-        self.labels = labels
-        self.categories = categories
-
-neck = Group(
+neck = group.Group(
             name = "neck", 
             labels = [
                 'vneck', 
@@ -88,7 +84,7 @@ neck = Group(
             categories = [dress, shirt]
         )
 
-sleeve_shape = Group(
+sleeve_shape = group.Group(
             name= "sleeve_shape", 
             labels = [
                 'bellsleeve', 
@@ -98,7 +94,7 @@ sleeve_shape = Group(
             categories = [dress, shirt]
         )
 
-sleeve_length = Group(
+sleeve_length = group.Group(
             name= "sleeve_length", 
             labels = [
                 'longsleeve', 
@@ -110,7 +106,7 @@ sleeve_length = Group(
             categories = [dress, shirt]
         )
 
-color = Group(
+color = group.Group(
             name = "color", 
             labels = [
                 'black', 
@@ -128,15 +124,15 @@ color = Group(
             categories = [dress, shirt, pant, skirt]
         )
 
-pattern = Group(
+pattern = group.Group(
             name = "pattern", 
             labels = [
                 'logo', 
                 'floral', 
                 'graphic', 
                 'pattern', 
-                'printed', 
-                'tonal', 
+                #'printed', 
+                #'tonal', 
                 'embroidered', 
                 'stripe', 
                 'paisley', 
@@ -144,12 +140,12 @@ pattern = Group(
                 'dot', 
                 'colorblock', 
                 'plaid', 
-                'leopard', 
-                'tribal'
+                'leopard'
+                #'tribal'
             ], 
             categories = [dress, shirt, pant, skirt]
         )
-material = Group(
+material = group.Group(
                 name = "material", 
                 labels = [
                     'polyester', 
@@ -170,7 +166,7 @@ material = Group(
                 categories = [dress, shirt, pant, skirt]
             )
 
-texture = Group(
+texture = group.Group(
             name = "texture", 
             labels = [
                 'ribbed', 
@@ -180,7 +176,7 @@ texture = Group(
             categories = [dress, shirt, pant, skirt]
         )
 
-style = Group(
+style = group.Group(
             name = "style", 
             labels = [
                 'casual', 
@@ -191,7 +187,7 @@ style = Group(
             ], 
             categories = [dress, shirt, pant, skirt])
 
-fit = Group(
+fit = group.Group(
         name = "fit", 
         labels = [
             'slim', 
@@ -203,7 +199,7 @@ fit = Group(
         ], 
         categories = [dress, shirt, pant, skirt])
 
-pant_shape = Group(
+pant_shape = group.Group(
                 name = "pant_shape", 
                 labels = [
                     'boyfriend', 
@@ -214,7 +210,7 @@ pant_shape = Group(
                 categories = [pant]
             )
 
-shape = Group(
+shape = group.Group(
             name = 'shape', 
             labels = [
                 'peasant', 
@@ -226,13 +222,13 @@ shape = Group(
             ], 
             categories = [dress, shirt, skirt])
 
-length = Group(
+length = group.Group(
             name="skirt_length", 
             labels = ['mini', 'midi', 'maxi'] ,
             categories = [dress, shirt]
         )
 
-invalid = Group(
+invalid = group.Group(
             name = "invalid", 
             labels = ['heathered', 'ribbed', 'hood', 'lattice', 'drape', 'ruffle', 'strappy', 'racerback', 'deepv', 'panel', 'highslit'], 
             categories = [dress, skirt, pant, skirt])

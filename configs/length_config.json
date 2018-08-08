@@ -10,7 +10,7 @@
     "full_image_dir": "/home/allparel/Allparel-ML/datasets/images/"
   },
   "model":{
-    "name": "vgg_model.VGGModel",
+    "name": "vgg_model.VGG19Model",
     "learning_rate": 0.001,
     "optimizer": "sgd"
   },

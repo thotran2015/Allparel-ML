@@ -53,6 +53,7 @@ def main():
     # then process the json configuration file
     args = get_args()
     config = process_config(args.config)
+    print(args.config)
 
     generator = get_data_loader(config, False)
     labels = [""] * len(generator.class_indices)

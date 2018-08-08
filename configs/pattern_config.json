@@ -11,18 +11,18 @@
     },
     "model":{
       "name": "vgg_model.VGG19Model",
-      "learning_rate": 0.001,
+      "learning_rate": 0.01,
       "optimizer": "sgd"
     },
     "trainer":{
       "name": "simple_mnist_trainer.ModelTrainer",
       "steps_per_epoch": 500,
       "validation_steps": 50,
-      "num_epochs": 80, 
-      "batch_size": 128,
+      "num_epochs": 160, 
+      "batch_size": 64,
       "validation_split":0.1,
       "verbose_training": true,
-      "class_count": 16,
+      "class_count": 15,
       "num_gpus": 2
     },
     "predictor":{

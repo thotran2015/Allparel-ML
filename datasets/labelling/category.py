@@ -30,19 +30,4 @@ class Category:
     def __str__(self):
         return self.category
 
-class Group:
-
-    def __init__(self, labels, categories):
-        self.labels = labels
-        self.categories = categories
-
-    def has_category(category):
-        for cat in self.categories:
-            if cat.in_category(category):
-                return True
-        return False
-
-
-
-
 
