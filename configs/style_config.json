@@ -1,35 +1,35 @@
 {
     "exp": {
-      "name": "pattern"
+      "name": "style"
     },
     "data_loader": {
       "name": "dataloader.Dataloader",
-      "train_dir": "datasets/train/pattern",
-      "val_dir": "datasets/validation/pattern",
+      "train_dir": "datasets/train/style",
+      "val_dir": "datasets/validation/style",
       "predict_dir": "datasets/predict",
       "full_image_dir": "/home/allparel/Allparel-ML/datasets/images/"
     },
     "model":{
       "name": "vgg_model.VGG19Model",
-      "learning_rate": 0.01,
+      "learning_rate": 0.001,
       "optimizer": "sgd"
     },
     "trainer":{
       "name": "simple_mnist_trainer.ModelTrainer",
       "steps_per_epoch": 500,
       "validation_steps": 50,
-      "num_epochs": 160, 
+      "num_epochs": 80, 
       "batch_size": 64,
       "validation_split":0.1,
       "verbose_training": true,
-      "class_count": 15,
-      "num_gpus": 2
+      "class_count": 5,
+      "num_gpus": 1
     },
     "predictor":{
       "steps": 10,
       "process_all": false,
       "batch_size": 64,
-      "tag_name": "pattern"
+      "tag_name": "style"
     },
     "classification_report":{
       "steps": 50,

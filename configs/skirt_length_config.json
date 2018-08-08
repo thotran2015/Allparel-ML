@@ -1,11 +1,11 @@
 {
   "exp": {
-    "name": "length"
+    "name": "skirt_length"
   },
   "data_loader": {
     "name": "dataloader.Dataloader",
-    "train_dir": "datasets/train/length",
-    "val_dir": "datasets/validation/length",
+    "train_dir": "datasets/train/skirt_length",
+    "val_dir": "datasets/validation/skirt_length",
     "predict_dir": "datasets/predict",
     "full_image_dir": "/home/allparel/Allparel-ML/datasets/images/"
   },
@@ -22,14 +22,14 @@
     "batch_size": 64,
     "validation_split":0.1,
     "verbose_training": true,
-    "class_count": 6,
+    "class_count": 3,
     "num_gpus": 1
   },
   "predictor":{
     "steps": 10,
     "process_all": false,
     "batch_size": 64,
-    "tag_name": "length"
+    "tag_name": "skirt_length"
   },
   "classification_report":{
     "steps": 50,

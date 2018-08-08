@@ -25,12 +25,13 @@ all_replacements = {
     "uneck":"crewneck", 
     "fringedhem":"fringehem", 
     "longline":"long", 
-    "cropped":"crop"
+    "cropped":"crop", 
+    "highslit":"slit"
 }
 dress_replacements = {
-    "body length": "maxi",
-    "full length": "maxi",
-    "knee length": "midi"
+    "bodylength": "maxi",
+    "fulllength": "maxi",
+    "kneelength": "midi"
 }
 pant_replacements = {
     'sweats': 'sweatpants', 
@@ -38,9 +39,9 @@ pant_replacements = {
     'bootcut': 'flare'
 } 
 skirt_replacements = {
-    "body length": "maxi",
-    "full length": "maxi",
-    "knee length": "midi"
+    "bodylength": "maxi",
+    "fulllength": "maxi",
+    "kneelength": "midi"
 }
 shirt_replacements = {}
 
@@ -111,15 +112,23 @@ color = group.Group(
             labels = [
                 'black', 
                 'white', 
+                'beige',
                 'blue', 
                 'red', 
-                'multicolor', 
+                'blue',
+                'yellow',
                 'grey', 
                 'navy', 
                 'red', 
                 'pink', 
-                'dark', 
-                'light'
+                'green',
+                'orange',
+                'purple',
+                'brown',
+                'gold',
+                'silver',
+                'multicolor', 
+
             ], 
             categories = [dress, shirt, pant, skirt]
         )
@@ -130,7 +139,7 @@ pattern = group.Group(
                 'logo', 
                 'floral', 
                 'graphic', 
-                'pattern', 
+                #'pattern', 
                 #'printed', 
                 #'tonal', 
                 'embroidered', 
@@ -171,7 +180,9 @@ texture = group.Group(
             labels = [
                 'ribbed', 
                 'pleated', 
-                'woven'
+                'woven',
+                'drape',
+                'ruffle'
             ], 
             categories = [dress, shirt, pant, skirt]
         )
@@ -205,6 +216,7 @@ pant_shape = group.Group(
                     'boyfriend', 
                     'skinny', 
                     'flare', 
+                    'straight',
                     'crop'
                 ], 
                 categories = [pant]
@@ -218,7 +230,7 @@ shape = group.Group(
                 'surplice', 
                 'peplum', 
                 'dolman', 
-                'kimono'
+                'kimono', 
             ], 
             categories = [dress, shirt, skirt])
 
@@ -230,6 +242,6 @@ length = group.Group(
 
 invalid = group.Group(
             name = "invalid", 
-            labels = ['heathered', 'ribbed', 'hood', 'lattice', 'drape', 'ruffle', 'strappy', 'racerback', 'deepv', 'panel', 'highslit'], 
+            labels = ['heathered', 'hood', 'lattice' , 'strappy', 'racerback', 'deepv', 'panel', 'highslit'], 
             categories = [dress, skirt, pant, skirt])
 

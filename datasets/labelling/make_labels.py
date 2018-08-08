@@ -86,10 +86,10 @@ def write_image_labels(records):
                 pos_string = ''
                 neg_string = ''
             
-                for p in record.pos:
+                for p in record.positive_tags:
                     if p in group.labels:
                         pos_string = pos_string + ' ' + str(group.labels.index(p))
-                for n in record.neg:
+                for n in record.negative_tags:
                     if n in group.labels:
                         neg_string = neg_string + ' ' + str(group.labels.index(n))
 
@@ -108,8 +108,8 @@ def count_per_label(records):
     negative = [0] * len(labels)
     category_counts = [[0] * len(labels) for i in range(len(categories))]
     for record in records:
-        pos = record.pos
-        neg = record.neg
+        pos = record.positive_tags
+        neg = record.negative_tags
         for p in pos:
             index = labels.index(p)
             positive[index] = positive[index] + 1
@@ -153,7 +153,7 @@ def organize_image_data(records):
                 sub_directory = directory + '/' + label
                 if not os.path.exists(sub_directory):
                     os.makedirs(sub_directory)
-                if label in record.pos:
+                if label in record.positive_tags:
                     dst = sub_directory + '/' + img
                     src = data_directory + img
                     if not os.path.lexists(dst):
