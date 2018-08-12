@@ -10,6 +10,7 @@ from pymongo import MongoClient
 import numpy as np
 import os
 import math
+import json
 from multiprocessing import Pool
 
 num_threads = 24
@@ -35,7 +36,7 @@ def update_db_records(config, records, filenames, labels):
             for label in labels:
                 predicted_confidences.append((label, float(prediction[labels.index(label)])))
 
-                #predicted_confidences = [float(prediction[cls])]
+            #predicted_confidences = [float(prediction[cls])]
             #predicted_tags[config.predictor.tag_name] = labels[cls]
             #predicted_confidences[config.predictor.tag_name] = conf
 
@@ -68,17 +69,29 @@ def chunkify(records):
 
 def main():
     config_directory = 'configs/'
-    predict_groups = [ 
-            #('neck_config.json', '/home/allparel/Allparel-ML/experiments/2018-07-13/vgg/checkpoints/vgg-56-0.76.hdf5'),
-            ('fit_config.json', '/home/allparel/Allparel-ML/experiments/2018-08-04/fit/checkpoints/fit-72-0.87.hdf5'),
-            ('pant_shape_config.json', '/home/allparel/Allparel-ML/experiments/2018-08-04/pant_shape/checkpoints/pant_shape-41-0.65.hdf5'), 
-            ('sleeve_length_config.json', '/home/allparel/Allparel-ML/experiments/2018-08-04/sleeve_length/checkpoints/sleeve_length-74-0.25.hdf5'),
-            ('length_config.json', '/home/allparel/Allparel-ML/experiments/2018-08-01/length/checkpoints/length-71-0.66.hdf5'),
-            ('pattern_config.json','/home/allparel/Allparel-ML/experiments/2018-08-01/pattern/checkpoints/pattern-78-1.78.hdf5')
-        ]
 
-    for config_file, checkpoint_file in predict_groups:
-        #args = get_args()
+    # load checkpoints.json
+    groups = [ 
+           "neck",
+           "pattern",
+           "fit",
+           "sleeve_length",
+           "pant_shape",
+           "color",
+           "material",
+           "shape",
+           "skirt_length",
+           "sleeve_shape",
+           "style",
+           "texture" 
+       ]
+
+    with open('/home/allparel/Allparel-ML/checkpoints.json') as f:
+        checkpoints = json.load(f)
+
+    for group in groups:
+        checkpoint_file = checkpoints[group]
+        config_file = group + "_config.json"
         config = process_config(config_directory + config_file)
         print("PREDICTING", config_file)
 
@@ -91,16 +104,12 @@ def main():
         predict_generator = get_predict_data_loader(config)
 
         print('Create the model.')
-        #model.load("/home/allparel/Allparel-ML/experiments/2018-07-13/vgg/checkpoints/vgg-56-0.76.hdf5")
         if config.model.name == "vgg_model.VGG19Model":
             print("using vgg19")
             model = VGG19Model(config)
         else:
             model = VGGModel(config)
-
         model.load(checkpoint_file)
-
-        
         steps = config.predictor.steps
 
         if config.predictor.process_all:
@@ -123,5 +132,6 @@ def main():
         print("finished writing to database")
 
     print("finished")
+
 if __name__ == '__main__':
     main()

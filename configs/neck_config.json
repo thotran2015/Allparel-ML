@@ -19,16 +19,16 @@
     "steps_per_epoch": 500,
     "validation_steps": 50,
     "num_epochs": 80, 
-    "batch_size": 192,
+    "batch_size": 64,
     "validation_split":0.1,
     "verbose_training": true,
-    "class_count": 13, 
+    "class_count": 13,
     "num_gpus": 1
   },
   "predictor":{
     "steps": 10,
     "process_all": false,
-    "batch_size": 192,
+    "batch_size": 64,
     "tag_name": "neck"
   },
   "callbacks":{

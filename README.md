@@ -33,13 +33,14 @@ To modify the configuration of the preprocessing, such as the labels contained i
 
 # Running Training
 `python3 main.py -c configs/vgg_config.json`
+When the GPUs are mysteriously corrupted, run `sudo fuser -v /dev/nvidia*` and ` sudo killall python3`.
 
 # Generating Classification Report
 Edit top of file of `classification_report.py` to specify the model checkpoint and config file. You can also edit the classification_report section of the config file to specify how many steps should be used in the classification report. Then run the below command.
 `python3 classification_report.py`
 
 # Evaluation
-
+Jupyter notebook (@RYAN PLEASE WRITE THIS)
 
 # Running Predictions
 To predict on a single image, run:
@@ -48,3 +49,5 @@ To run prediction on all the records in the database, run `python3 predict_to_db
 
 # Interface
 Images, descriptions, and prediction results stored in the mongo database can be viewed using the webapp https://github.com/sarahwooders/Allparel. 
+
+Kill existing ngrok processes and run `./ngrok 80`.

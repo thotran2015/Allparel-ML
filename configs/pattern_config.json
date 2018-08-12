@@ -18,17 +18,17 @@
       "name": "simple_mnist_trainer.ModelTrainer",
       "steps_per_epoch": 500,
       "validation_steps": 50,
-      "num_epochs": 160, 
-      "batch_size": 64,
+      "num_epochs": 200, 
+      "batch_size": 192,
       "validation_split":0.1,
       "verbose_training": true,
-      "class_count": 15,
+      "class_count": 12,
       "num_gpus": 2
     },
     "predictor":{
       "steps": 10,
       "process_all": false,
-      "batch_size": 64,
+      "batch_size": 192,
       "tag_name": "pattern"
     },
     "classification_report":{
