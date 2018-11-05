@@ -10,7 +10,7 @@
       "full_image_dir": "/home/allparel/Allparel-ML/datasets/images/"
     },
     "model":{
-      "name": "vgg_model.VGGModel",
+      "name": "vgg_model.VGG19Model",
       "learning_rate": 0.001,
       "optimizer": "sgd"
     },
@@ -26,8 +26,8 @@
       "num_gpus": 1
     },
     "predictor":{
-      "steps": 10,
-      "process_all": false,
+      "steps": 50,
+      "process_all": true,
       "batch_size": 64,
       "tag_name": "pant_shape"
     },

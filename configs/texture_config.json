@@ -11,7 +11,7 @@
     },
     "model":{
       "name": "vgg_model.VGGModel",
-      "learning_rate": 0.001,
+      "learning_rate": 0.01,
       "optimizer": "sgd"
     },
     "trainer":{
@@ -26,8 +26,8 @@
       "num_gpus": 1
     },
     "predictor":{
-      "steps": 10,
-      "process_all": false,
+      "steps": 50,
+      "process_all": true,
       "batch_size": 64,
       "tag_name": "texture"
     },

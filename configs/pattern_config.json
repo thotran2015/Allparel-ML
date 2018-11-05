@@ -26,8 +26,8 @@
       "num_gpus": 2
     },
     "predictor":{
-      "steps": 10,
-      "process_all": false,
+      "steps": 50,
+      "process_all": true,
       "batch_size": 192,
       "tag_name": "pattern"
     },

@@ -10,24 +10,24 @@
       "full_image_dir": "/home/allparel/Allparel-ML/datasets/images/"
     },
     "model":{
-      "name": "vgg_model.VGG19Model",
-      "learning_rate": 0.001,
+      "name": "vgg_model.VGGModel",
+      "learning_rate": 0.1,
       "optimizer": "sgd"
     },
     "trainer":{
       "name": "simple_mnist_trainer.ModelTrainer",
       "steps_per_epoch": 500,
       "validation_steps": 50,
-      "num_epochs": 80, 
-      "batch_size": 64,
+      "num_epochs": 100, 
+      "batch_size": 128,
       "validation_split":0.1,
       "verbose_training": true,
       "class_count": 18,
-      "num_gpus": 1
+      "num_gpus": 2
     },
     "predictor":{
-      "steps": 10,
-      "process_all": false,
+      "steps": 50,
+      "process_all": true,
       "batch_size": 64,
       "tag_name": "color"
     },

@@ -26,10 +26,10 @@
       "num_gpus": 1
     },
     "predictor":{
-      "steps": 10,
-      "process_all": false,
+      "steps": 50,
+      "process_all": true,
       "batch_size": 64,
-      "tag_name": "length"
+      "tag_name": "material"
     },
     "classification_report":{
       "steps": 50,

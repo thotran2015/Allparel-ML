@@ -1,5 +1,6 @@
 ﻿# Setup
 Make sure mongo is running by running `mongo` in the terminal. If not running, start with `sudo service mongod start`.
+However ever since I added some stuff to connect it to elastic search, mongo has some problems unless I run `sudo mongod --port 27017 --dbpath /data/db --replSet rs0 --fork --logpath /var/log/mongodb.mongod.log`. See more here https://seinecle.github.io/linux-security-tutorials/generated-pdf/mongodb-and-elasticsearch.pdf
 
 # Data Scraping
 To run the scraper on Shopstyle, run `cd datasets/scraping; python3 scrape.py`. 

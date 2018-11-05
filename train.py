@@ -30,8 +30,11 @@ def main():
     # Load from previously trained 
     #model.load("/home/allparel/Allparel-ML/experiments/2018-07-02/vgg/checkpoints/vgg-20-0.93.hdf5")
 
-    model.load('/home/allparel/Allparel-ML/experiments/2018-08-10/pattern/checkpoints/pattern-70-1.32.hdf5')
+    #model.load('/home/allparel/Allparel-ML/experiments/2018-08-10/pattern/checkpoints/pattern-70-1.32.hdf5')
 
+    #model.load("/home/allparel/Allparel-ML/experiments/2018-08-12/color/checkpoints/color-99-1.38.hdf5")
+
+    #model.load("/home/allparel/Allparel-ML/experiments/2018-08-08/material/checkpoints/material-36-1.69.hdf5")
     print('Create the trainer')
     trainer = ModelTrainer(model.model, training_generator, validation_generator, config)
 
