@@ -7,7 +7,7 @@ class Group:
         self.categories = categories
 
     def has_category(self, category):
-        for cat in self.categories:
+        if category in self.categories:
             return True
         return False
 
