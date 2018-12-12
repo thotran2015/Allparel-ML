@@ -51,6 +51,8 @@ class ModelTrainer(BaseTrain):
             use_multiprocessing=True,
             workers=6,
             callbacks=self.callbacks,
+            class_weight={0:5.0, 1:1.0}
+            #class_weight={0:1.0, 1:100.0}
         )
         self.loss.extend(history.history['loss'])
         self.acc.extend(history.history['acc'])

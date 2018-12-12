@@ -35,6 +35,16 @@ def main():
     #model.load("/home/allparel/Allparel-ML/experiments/2018-08-12/color/checkpoints/color-99-1.38.hdf5")
 
     #model.load("/home/allparel/Allparel-ML/experiments/2018-08-08/material/checkpoints/material-36-1.69.hdf5")
+
+    #model.load("/home/allparel/Allparel-ML/experiments/2018-12-09/baseline_crewneck/checkpoints/baseline_crewneck-66-0.43.hdf5")
+
+    #model.load("/home/allparel/Allparel-ML/experiments/2018-12-09/turtleneck/checkpoints/turtleneck-61-0.37.hdf5")
+    
+    #model.load("/home/allparel/Allparel-ML/experiments/2018-12-10/crewneck/checkpoints/crewneck-52-0.32.hdf5")
+
+    #model.load("/home/allparel/Allparel-ML/experiments/2018-12-11/baseline_turtleneck/checkpoints/baseline_turtleneck-12-0.73.hdf5")
+    #model.load("/home/allparel/Allparel-ML/experiments/2018-12-11/matrix_turtleneck/checkpoints/matrix_turtleneck-12-0.67.hdf5")
+    #model.load("/home/allparel/Allparel-ML/experiments/2018-12-11/baseline_turtleneck/checkpoints/baseline_turtleneck-12-0.73.hdf5")
     print('Create the trainer')
     trainer = ModelTrainer(model.model, training_generator, validation_generator, config)
 

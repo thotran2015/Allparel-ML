@@ -28,7 +28,7 @@ files = [f for f in os.listdir(data_directory) if f.endswith('.txt')]
 records = make_labels.clean_records(p.map(make_labels.process_file, files))
 
 # Updating database
-print("Writing updates to database", len(records))
+#print("Writing updates to database", len(records))
 ##make_labels.update_db_records(records)
 #chunk_records = make_labels.chunkify(records)
 #p.map(make_labels.update_db_records, chunk_records)

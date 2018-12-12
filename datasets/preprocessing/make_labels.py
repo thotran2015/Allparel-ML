@@ -148,16 +148,33 @@ def organize_image_data(records):
             if not os.path.exists(directory):
                 os.makedirs(directory)
 
+            has_label = False
             for label in group.labels:
+                if label == 'other':
+                    continue
                 img = os.path.basename(record.image_filename)
                 sub_directory = directory + '/' + label
                 if not os.path.exists(sub_directory):
                     os.makedirs(sub_directory)
                 if label in record.positive_tags:
+                    has_label = True
                     dst = sub_directory + '/' + img
                     src = data_directory + img
                     if not os.path.lexists(dst):
                         os.symlink(src, dst)
+
+            # If none of the labels exist in description, place in "other" category (if specified in the group)
+            if not has_label and 'other' in group.labels:
+                img = os.path.basename(record.image_filename)
+                sub_directory = directory + '/' + 'other'
+                if not os.path.exists(sub_directory):
+                    os.makedirs(sub_directory)
+                dst = sub_directory + '/' + img
+                src = data_directory + img
+                if not os.path.lexists(dst):
+                    os.symlink(src, dst)
+
+
                         
         i = i + 1
 

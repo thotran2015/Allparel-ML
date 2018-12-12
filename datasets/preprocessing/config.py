@@ -6,7 +6,6 @@ dress_sub_categories = ['gown', 'romper','jumpsuit']
 pant_sub_categories = ['dresspants','jeans', 'slacks', 'sweatpants', 'shorts', 'leggings']
 skirt_sub_categories = []
 other = ['kimono', 'coat']
-
 shirt_pattern = ['raglan']
 
 # Define replacements (i.e. synonyms) - some are defined per category
@@ -80,7 +79,8 @@ neck = group.Group(
                 'splitneck', 
                 'halter', 
                 'oneshoulder', 
-                'straightneck'
+                'straightneck', 
+                'other'
             ], 
             categories = [dress, shirt]
         )
